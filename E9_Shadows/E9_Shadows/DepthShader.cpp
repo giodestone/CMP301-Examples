@@ -1,12 +1,10 @@
 // depth shader.cpp
 #include "depthshader.h"
 
-
 DepthShader::DepthShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	initShader(L"depth_vs.cso", L"depth_ps.cso");
 }
-
 
 DepthShader::~DepthShader()
 {
@@ -28,7 +26,6 @@ DepthShader::~DepthShader()
 	BaseShader::~BaseShader();
 }
 
-
 void DepthShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
@@ -47,7 +44,6 @@ void DepthShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 
 }
-
 
 void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix)
 {
@@ -68,5 +64,3 @@ void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 }
-
-

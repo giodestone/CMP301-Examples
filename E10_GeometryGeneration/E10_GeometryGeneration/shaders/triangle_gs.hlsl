@@ -1,3 +1,5 @@
+// triangle_gs
+// Geometry shader that generates a triangle for every vertex.
 
 cbuffer MatrixBuffer : register(b0)
 {

@@ -1,3 +1,5 @@
+// Simple throughput vertex shader. Work being done by the geometry shader.
+
 struct InputType
 {
     float4 position : POSITION;

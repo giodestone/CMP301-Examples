@@ -1,12 +1,9 @@
 #include "TextureShader.h"
 
-
-
 TextureShader::TextureShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	initShader(L"texture_vs.cso", L"texture_ps.cso");
 }
-
 
 TextureShader::~TextureShader()
 {
@@ -79,14 +76,13 @@ void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	XMMATRIX tworld, tview, tproj;
-
-
+	
 	// Transpose the matrices to prepare them for the shader.
 	tworld = XMMatrixTranspose(worldMatrix);
 	tview = XMMatrixTranspose(viewMatrix);
 	tproj = XMMatrixTranspose(projectionMatrix);
 
-	// Sned matrix data
+	// Send matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	dataPtr->world = tworld;// worldMatrix;

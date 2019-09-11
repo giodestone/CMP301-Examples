@@ -38,7 +38,6 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 }
 
-
 App1::~App1()
 {
 	// Run base application deconstructor

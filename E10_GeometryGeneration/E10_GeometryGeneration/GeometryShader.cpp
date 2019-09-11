@@ -1,12 +1,10 @@
 // geometry shader.cpp
 #include "geometryshader.h"
 
-
 GeometryShader::GeometryShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	initShader(L"triangle_vs.cso", L"triangle_gs.cso", L"triangle_ps.cso");
 }
-
 
 GeometryShader::~GeometryShader()
 {
