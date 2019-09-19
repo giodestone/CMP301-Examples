@@ -84,13 +84,14 @@ bool App1::render()
 	projectionMatrix = renderer->getProjectionMatrix();
 
 	// Send geometry data, set shader parameters, render object with shader
+	auto matrix1 = worldMatrix * XMMatrixRotationZ(sliderRotate); //create rotation matrix based on slider
 	mesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"mytex"));
+	textureShader->setShaderParameters(renderer->getDeviceContext(), matrix1, viewMatrix, projectionMatrix, textureMgr->getTexture(L"mytex"));
 	textureShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	// Other rectangle on the side
 	zRot += duration ; //update rotation...
-	auto matrix2 = XMMatrixRotationZ(zRot) /*note - radians*/ * XMMatrixTranslation(3.f, 0.f, 0.f); //this is a second matrix for the transformations - remember transofrmation matrices in opengl
+	auto matrix2 = worldMatrix * (XMMatrixRotationZ(zRot) /*note - radians*/ * XMMatrixTranslation(3.f, 0.f, 0.f)); //this is a second matrix for the transformations - remember transofrmation matrices in opengl
 	//XMMatrix____________ Creates a matrix according to its name, remember SRT (Scale then Rotate then Translate)
 
 	mesh->sendData(renderer->getDeviceContext());
@@ -116,6 +117,10 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
+
+
+	//Add the rotation slider
+	ImGui::SliderFloat("Rotation", &sliderRotate, 0.0f, 6.28319f);
 
 	// Render UI
 	ImGui::Render();

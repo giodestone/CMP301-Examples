@@ -32,6 +32,8 @@ private:
 	std::chrono::high_resolution_clock::time_point end;
 
 	float zRot;
+
+	float sliderRotate;
 };
 
 #endif
