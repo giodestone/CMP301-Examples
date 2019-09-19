@@ -13,7 +13,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
-	textureMgr->loadTexture(L"brick", L"res/my-texture.png");
+	textureMgr->loadTexture(L"mytex", L"res/my-texture.png");	
+	textureMgr->loadTexture(L"brick", L"res/my-texture.png");	
 
 	// Create Mesh object and shader object
 	mesh = new TexturedQuad(renderer->getDevice(), renderer->getDeviceContext());
@@ -44,6 +45,11 @@ App1::~App1()
 
 bool App1::frame()
 {
+	//FOR ROTATING QUAD!
+	end = start;
+	start = std::chrono::high_resolution_clock::now();
+	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
 	bool result;
 
 	result = BaseApplication::frame();
@@ -79,7 +85,15 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"));
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"mytex"));
+	textureShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	// Other rectangle on the side
+	zRot += duration * 0.01f; //update rotation...
+	auto matrix2 = XMMatrixRotationZ(zRot) * XMMatrixTranslation(3.f, 0.f, 0.f); //this is a second matrix for the transformations - remember transofrmation matrices in opengl
+
+	mesh->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), matrix2, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"));
 	textureShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	// Render GUI
