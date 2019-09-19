@@ -31,6 +31,8 @@ OutputType main(InputType input)
 
 	// Store the texture coordinates for the pixel shader.
 	output.tex = input.tex;
+	output.tex.x += 0.5f; // For task 4 bottom
+	output.tex.y += 0.5f;
 
 	return output;
 }

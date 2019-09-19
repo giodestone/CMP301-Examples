@@ -7,6 +7,8 @@
 #include "TextureShader.h"
 #include "TexturedQuad.h"
 
+#include <chrono>
+
 class App1 : public BaseApplication
 {
 public:
@@ -24,6 +26,12 @@ protected:
 private:
 	TextureShader* textureShader;
 	TexturedQuad* mesh;
+
+	float duration;
+	std::chrono::high_resolution_clock::time_point start;
+	std::chrono::high_resolution_clock::time_point end;
+
+	float zRot;
 };
 
 #endif

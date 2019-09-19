@@ -26,6 +26,8 @@ void TexturedQuad::initBuffers(ID3D11Device* device)
 	unsigned long* indices = new unsigned long[indexCount];
 
 	// Load the vertex array with data.
+	// MAKE UV 2 TO MIRROR ON X/Y
+	
 	vertices[0].position = XMFLOAT3(-1.0f, 1.0f, 0.0f);  // Top left.
 	vertices[0].texture = XMFLOAT2(0.0f, 0.0f);
 
