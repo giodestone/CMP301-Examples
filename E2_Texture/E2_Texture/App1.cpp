@@ -14,7 +14,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
 	textureMgr->loadTexture(L"mytex", L"res/my-texture.png");	
-	textureMgr->loadTexture(L"brick", L"res/my-texture.png");	
+	textureMgr->loadTexture(L"brick", L"res/brick1.dds");	
 
 	// Create Mesh object and shader object
 	mesh = new TexturedQuad(renderer->getDevice(), renderer->getDeviceContext());
@@ -48,7 +48,7 @@ bool App1::frame()
 	//FOR ROTATING QUAD!
 	end = start;
 	start = std::chrono::high_resolution_clock::now();
-	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() /1000.f;
 
 	bool result;
 
@@ -89,8 +89,9 @@ bool App1::render()
 	textureShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	// Other rectangle on the side
-	zRot += duration * 0.01f; //update rotation...
-	auto matrix2 = XMMatrixRotationZ(zRot) * XMMatrixTranslation(3.f, 0.f, 0.f); //this is a second matrix for the transformations - remember transofrmation matrices in opengl
+	zRot += duration ; //update rotation...
+	auto matrix2 = XMMatrixRotationZ(zRot) /*note - radians*/ * XMMatrixTranslation(3.f, 0.f, 0.f); //this is a second matrix for the transformations - remember transofrmation matrices in opengl
+	//XMMatrix____________ Creates a matrix according to its name, remember SRT (Scale then Rotate then Translate)
 
 	mesh->sendData(renderer->getDeviceContext());
 	textureShader->setShaderParameters(renderer->getDeviceContext(), matrix2, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"));
