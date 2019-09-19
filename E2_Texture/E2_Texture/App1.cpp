@@ -84,18 +84,9 @@ bool App1::render()
 	projectionMatrix = renderer->getProjectionMatrix();
 
 	// Send geometry data, set shader parameters, render object with shader
-	auto matrix1 = worldMatrix * XMMatrixRotationZ(sliderRotate); //create rotation matrix based on slider
+	auto matrix1 = worldMatrix * XMMatrixScaling(2.f, 2.f, 2.f) * XMMatrixRotationZ(sliderRotate); //create rotation matrix based on slider
 	mesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), matrix1, viewMatrix, projectionMatrix, textureMgr->getTexture(L"mytex"));
-	textureShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
-
-	// Other rectangle on the side
-	zRot += duration ; //update rotation...
-	auto matrix2 = worldMatrix * (XMMatrixRotationZ(zRot) /*note - radians*/ * XMMatrixTranslation(3.f, 0.f, 0.f)); //this is a second matrix for the transformations - remember transofrmation matrices in opengl
-	//XMMatrix____________ Creates a matrix according to its name, remember SRT (Scale then Rotate then Translate)
-
-	mesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), matrix2, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"));
+	textureShader->setShaderParameters(renderer->getDeviceContext(), matrix1, viewMatrix, projectionMatrix, textureMgr->getTexture(L"mytex"), textureMgr->getTexture(L"brick"));
 	textureShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	// Render GUI

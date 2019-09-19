@@ -73,7 +73,7 @@ void TextureShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilen
 }
 
 
-void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture)
+void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2BlendWith)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -96,7 +96,8 @@ void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
 	// Set shader texture and sampler resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(0, 1, &texture); //arguments: index array, amount, address to ID3D11ShaderResourceView
+	deviceContext->PSSetShaderResources(1, 1, &texture2BlendWith); //So because this is the second one there needs to be a 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }
 
