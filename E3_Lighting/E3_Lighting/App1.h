@@ -5,7 +5,7 @@
 // Includes
 #include "DXF.h"	// include dxframework
 #include "LightShader.h"
-
+#include "LightingDetails.h"
 
 class App1 : public BaseApplication
 {
@@ -25,6 +25,8 @@ private:
 	LightShader* shader;
 	SphereMesh* mesh;
 	Light* light;
+
+	LightingDetails lightingDetails;
 };
 
 #endif

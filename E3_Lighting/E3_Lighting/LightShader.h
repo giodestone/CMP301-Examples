@@ -17,9 +17,8 @@ private:
 		XMFLOAT4 ambientColour;
 		
 		//for the point light
-		XMFLOAT3 pointLightPosition;
+		XMFLOAT3 position;
 		float padding2;
-		XMFLOAT4 pointLightColour;
 		float pointLightRange;
 		float attenuationConstant;
 		float attenuationLinear;

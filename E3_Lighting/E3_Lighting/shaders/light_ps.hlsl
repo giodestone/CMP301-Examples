@@ -13,9 +13,8 @@ cbuffer LightBuffer : register(b0)
 	float4 ambientColour;
 	
 	//for the point light
-	float3 pointLightPosition;
+	float3 position;
 	float padding2; //AGAIN REMEMBER THE PADDING
-	float4 pointLightColour;
 	float pointLightRange;
 	float attenuationConstant;
 	float attenuationLinear;
@@ -37,11 +36,11 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, f
 	//float4 colour = saturate(diffuse * intensity);
 	//NOTE GOTTEN RID OF THE DIRECTIONAL LIGHT FUNCTIONALITY!
 
-
+	// https://www.braynzarsoft.net/viewtutorial/q16390-17-point-lights
 	float4 colour = diffuse * ambientColour; //Add ambient to colour
 
 	//now calculate point light
-	float3 lightToPixelVec = pointLightPosition - worldPos.xyz;
+	float3 lightToPixelVec = position - worldPos.xyz;
 	float distance = length(lightToPixelVec);
 
 	if (distance > pointLightRange)
@@ -55,7 +54,7 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, f
 	{
 		float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
 		
-		lightColour += saturate(lightIntensity * diffuse * pointLightColour);
+		lightColour += saturate(lightIntensity * diffuse * diffuseColour);
 
 		lightColour /= attenuationConstant + (attenuationLinear * distance) + (attenuationExponential * (distance * distance));
 

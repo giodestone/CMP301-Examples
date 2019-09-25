@@ -19,10 +19,30 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	mesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	shader = new LightShader(renderer->getDevice(), hwnd);
 	light = new Light;
-	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	light->setDirection(1.0f, 0.0f, 0.0f);
-	light->setAmbientColour(0.2f, 0.2f, 0.2f, 0.f);
-	light->setPosition(2.f, 0.f, 0.f);
+	
+	//Setup light params
+	this->lightingDetails.ambientColor = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.f);
+	this->lightingDetails.diffuseColor = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
+	this->lightingDetails.direction = XMFLOAT3(-1.f, 0.f, 0.f);
+	this->lightingDetails.position = XMFLOAT3(2.f, 0.f, 0.f);
+
+	//initialise the floats for imgui
+	lightingDetails.ambientColorF = new float[4];
+	lightingDetails.ambientColorF[0] = lightingDetails.ambientColor.x;
+	lightingDetails.ambientColorF[1] = lightingDetails.ambientColor.y;
+	lightingDetails.ambientColorF[2] = lightingDetails.ambientColor.z;
+	lightingDetails.ambientColorF[3] = lightingDetails.ambientColor.w;
+
+	lightingDetails.diffuseColorF = new float[4];
+	lightingDetails.diffuseColorF[0] = lightingDetails.diffuseColor.x;
+	lightingDetails.diffuseColorF[1] = lightingDetails.diffuseColor.y;
+	lightingDetails.diffuseColorF[2] = lightingDetails.diffuseColor.z;
+	lightingDetails.diffuseColorF[3] = lightingDetails.diffuseColor.w;
+
+	lightingDetails.positionF = new float[3];
+	lightingDetails.positionF[0] = lightingDetails.position.x;
+	lightingDetails.positionF[1] = lightingDetails.position.y;
+	lightingDetails.positionF[2] = lightingDetails.position.z;
 }
 
 
@@ -43,12 +63,42 @@ App1::~App1()
 		delete shader;
 		shader = 0;
 	}
+
+	delete[] lightingDetails.ambientColorF;
+	lightingDetails.ambientColorF = nullptr;
+
+	delete[] lightingDetails.diffuseColorF;
+	lightingDetails.diffuseColorF = nullptr;
+
+	delete[] lightingDetails.positionF;
+	lightingDetails.positionF = nullptr;
 }
 
 
 bool App1::frame()
 {
 	bool result;
+
+	//Update XMFLOAT4 colours from values set in the imgui
+	lightingDetails.ambientColor.x = lightingDetails.ambientColorF[0];
+	lightingDetails.ambientColor.y = lightingDetails.ambientColorF[1];
+	lightingDetails.ambientColor.z = lightingDetails.ambientColorF[2];
+	lightingDetails.ambientColor.w = lightingDetails.ambientColorF[3];
+
+	lightingDetails.diffuseColor.x = lightingDetails.diffuseColorF[0];
+	lightingDetails.diffuseColor.y = lightingDetails.diffuseColorF[1];
+	lightingDetails.diffuseColor.z = lightingDetails.diffuseColorF[2];
+	lightingDetails.diffuseColor.w = lightingDetails.diffuseColorF[3];
+
+	lightingDetails.position.x = lightingDetails.positionF[0];
+	lightingDetails.position.y = lightingDetails.positionF[1];
+	lightingDetails.position.z = lightingDetails.positionF[2];
+
+	//now update the values inside of the light class
+	light->setDiffuseColour(lightingDetails.diffuseColor.x, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.w);
+	light->setDirection(lightingDetails.direction.x, lightingDetails.direction.y, lightingDetails.direction.z); //Not updated via GUI
+	light->setAmbientColour(lightingDetails.ambientColor.x, lightingDetails.ambientColor.y, lightingDetails.ambientColor.z, lightingDetails.ambientColor.w);
+	light->setPosition(lightingDetails.position.x, lightingDetails.position.y, lightingDetails.position.z);
 
 	result = BaseApplication::frame();
 	if (!result)
@@ -105,6 +155,10 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
+
+	ImGui::ColorEdit4("Ambient Colour", lightingDetails.ambientColorF);
+	ImGui::ColorEdit4("Diffuse Colour", lightingDetails.diffuseColorF);
+	ImGui::DragFloat3("Light Position", lightingDetails.positionF, 0.1f, -10.f, 10.f);
 
 	// Render UI
 	ImGui::Render();

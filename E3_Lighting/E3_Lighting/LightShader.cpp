@@ -120,12 +120,11 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 
 	lightPtr->ambientColour = light->getAmbientColour();
 	
-	lightPtr->pointLightPosition = light->getPosition();
-	lightPtr->pointLightColour = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
+	lightPtr->position = light->getPosition();
 	lightPtr->pointLightRange = 5000.f;
 	lightPtr->attenuationConstant = 0.f;
 	lightPtr->attenuationLinear = 0.001f;
-	lightPtr->attenuationExponential = 0.0000000000000001f;
+	lightPtr->attenuationExponential = 0.0f;
 
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
