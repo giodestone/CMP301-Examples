@@ -9,6 +9,7 @@ cbuffer LightBuffer : register(b0)
 	float4 diffuseColour;
 	float3 lightDirection;
 	float padding;
+	float4 ambientColour;
 };
 
 struct InputType
@@ -23,6 +24,7 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
 	float intensity = saturate(dot(normal, lightDirection));
 	float4 colour = saturate(diffuse * intensity);
+	colour += ambientColour; //clamps it sufficiently to where if the ambient is 1 it still works fine.
 	return colour;
 }
 
@@ -34,7 +36,7 @@ float4 main(InputType input) : SV_TARGET
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
 	lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
-	
+
 	return lightColour * textureColour;
 }
 
