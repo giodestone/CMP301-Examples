@@ -13,7 +13,17 @@ private:
 		XMFLOAT4 diffuse;
 		XMFLOAT3 direction;
 		float padding;
-		XMFLOAT4 ambient;
+
+		XMFLOAT4 ambientColour;
+		
+		//for the point light
+		XMFLOAT3 pointLightPosition;
+		float padding2;
+		XMFLOAT4 pointLightColour;
+		float pointLightRange;
+		float attenuationConstant;
+		float attenuationLinear;
+		float attenuationExponential;
 	};
 
 public:

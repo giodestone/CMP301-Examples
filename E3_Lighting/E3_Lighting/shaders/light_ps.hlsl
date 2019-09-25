@@ -8,8 +8,18 @@ cbuffer LightBuffer : register(b0)
 {
 	float4 diffuseColour;
 	float3 lightDirection;
-	float padding;
+	float padding; //REMEMBER THE PADING AFTER EVERY FLOAT3
+	
 	float4 ambientColour;
+	
+	//for the point light
+	float3 pointLightPosition;
+	float padding2; //AGAIN REMEMBER THE PADDING
+	float4 pointLightColour;
+	float pointLightRange;
+	float attenuationConstant;
+	float attenuationLinear;
+	float attenuationExponential;
 };
 
 struct InputType
@@ -20,11 +30,38 @@ struct InputType
 };
 
 // Calculate lighting intensity based on direction and normal. Combine with light colour.
-float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
+float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, float4 worldPos)
 {
-	float intensity = saturate(dot(normal, lightDirection));
-	float4 colour = saturate(diffuse * intensity);
-	colour += ambientColour; //clamps it sufficiently to where if the ambient is 1 it still works fine.
+	//calculate ambient and diffuse
+	//float intensity = saturate(dot(normal, lightDirection));
+	//float4 colour = saturate(diffuse * intensity);
+	//NOTE GOTTEN RID OF THE DIRECTIONAL LIGHT FUNCTIONALITY!
+
+
+	float4 colour = diffuse * ambientColour; //Add ambient to colour
+
+	//now calculate point light
+	float3 lightToPixelVec = pointLightPosition - worldPos.xyz;
+	float distance = length(lightToPixelVec);
+
+	if (distance > pointLightRange)
+		return colour;
+
+	lightToPixelVec /= distance;
+
+	float lightIntensity = dot(lightToPixelVec, normal);
+
+	if (lightIntensity > 0.f)
+	{
+		float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
+		
+		lightColour += saturate(lightIntensity * diffuse * pointLightColour);
+
+		lightColour /= attenuationConstant + (attenuationLinear * distance) + (attenuationExponential * (distance * distance));
+
+		colour = saturate(lightColour + colour);
+	}
+
 	return colour;
 }
 
@@ -35,7 +72,7 @@ float4 main(InputType input) : SV_TARGET
 
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
-	lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
+	lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour, input.position);
 
 	return lightColour * textureColour;
 }
