@@ -40,7 +40,7 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, f
 	float4 colour = diffuse * ambientColour; //Add ambient to colour
 
 	//now calculate point light
-	float3 lightToPixelVec = position - worldPos.xyz;
+	float3 lightToPixelVec = position - worldPos.xyz; //////////////////////////////////////////TODO: ASK IF WORLD POS IS ACTUALLY GIVING WORLD POS OR PIXEL POS BECAUSE THAT WOULD EXPLAIN THE STRANGE BEHAVIOUR
 	float distance = length(lightToPixelVec);
 
 	if (distance > pointLightRange)
