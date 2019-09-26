@@ -17,14 +17,14 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	// Create Mesh object and shader object
 	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
-	//mesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	sphereMesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	shader = new LightShader(renderer->getDevice(), hwnd);
 	light = new Light;
 	
 	//Setup light params
 	this->lightingDetails.ambientColor = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.f);
 	this->lightingDetails.diffuseColor = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
-	this->lightingDetails.direction = XMFLOAT3(-1.f, 0.f, 0.f);
+	this->lightingDetails.direction = XMFLOAT3(0.f, -1.f, 0.f);
 	this->lightingDetails.position = XMFLOAT3(-2.f, 0.f, 0.f);
 
 	//initialise the floats for imgui
@@ -136,6 +136,11 @@ bool App1::render()
 	mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	sphereMesh->sendData(renderer->getDeviceContext());
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
+	shader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
+
 
 	// Render GUI
 	gui();

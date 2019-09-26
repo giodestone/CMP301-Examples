@@ -24,6 +24,7 @@ protected:
 private:
 	LightShader* shader;
 	PlaneMesh* mesh;
+	SphereMesh* sphereMesh;
 	Light* light;
 
 	LightingDetails lightingDetails;
