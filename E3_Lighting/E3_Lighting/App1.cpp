@@ -16,7 +16,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
 
 	// Create Mesh object and shader object
-	mesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
+	//mesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	shader = new LightShader(renderer->getDevice(), hwnd);
 	light = new Light;
 	
@@ -24,7 +25,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	this->lightingDetails.ambientColor = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.f);
 	this->lightingDetails.diffuseColor = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
 	this->lightingDetails.direction = XMFLOAT3(-1.f, 0.f, 0.f);
-	this->lightingDetails.position = XMFLOAT3(2.f, 0.f, 0.f);
+	this->lightingDetails.position = XMFLOAT3(-2.f, 0.f, 0.f);
 
 	//initialise the floats for imgui
 	lightingDetails.ambientColorF = new float[4];
@@ -158,7 +159,7 @@ void App1::gui()
 
 	ImGui::ColorEdit4("Ambient Colour", lightingDetails.ambientColorF);
 	ImGui::ColorEdit4("Diffuse Colour", lightingDetails.diffuseColorF);
-	ImGui::DragFloat3("Light Position", lightingDetails.positionF, 0.1f, -10.f, 10.f);
+	ImGui::DragFloat3("Light Position", lightingDetails.positionF, 0.1f, -1000.f, 1000.f);
 
 	// Render UI
 	ImGui::Render();

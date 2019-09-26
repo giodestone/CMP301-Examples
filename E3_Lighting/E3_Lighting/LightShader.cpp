@@ -114,16 +114,16 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	LightBufferType* lightPtr;
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;
+	
 	lightPtr->diffuse = light->getDiffuseColour();
 	lightPtr->direction = light->getDirection();
-	//lightPtr->padding = 0.0f;
 
 	lightPtr->ambientColour = light->getAmbientColour();
 	
-	lightPtr->position = light->getPosition();
+	lightPtr->lightPosition = light->getPosition();
 	lightPtr->pointLightRange = 5000.f;
-	lightPtr->attenuationConstant = 0.f;
-	lightPtr->attenuationLinear = 0.001f;
+	lightPtr->attenuationConstant = 0.01f;
+	lightPtr->attenuationLinear = 0.01f;
 	lightPtr->attenuationExponential = 0.0f;
 
 	deviceContext->Unmap(lightBuffer, 0);

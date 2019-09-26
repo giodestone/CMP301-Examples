@@ -13,7 +13,7 @@ cbuffer LightBuffer : register(b0)
 	float4 ambientColour;
 	
 	//for the point light
-	float3 position;
+	float3 lightPosition;
 	float padding2; //AGAIN REMEMBER THE PADDING
 	float pointLightRange;
 	float attenuationConstant;
@@ -24,12 +24,13 @@ cbuffer LightBuffer : register(b0)
 struct InputType
 {
 	float4 position : SV_POSITION;
+	float4 worldPos : POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
 // Calculate lighting intensity based on direction and normal. Combine with light colour.
-float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, float4 worldPos)
+float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
 	//calculate ambient and diffuse
 	//float intensity = saturate(dot(normal, lightDirection));
@@ -40,7 +41,7 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse, f
 	float4 colour = diffuse * ambientColour; //Add ambient to colour
 
 	//now calculate point light
-	float3 lightToPixelVec = position - worldPos.xyz; //////////////////////////////////////////TODO: ASK IF WORLD POS IS ACTUALLY GIVING WORLD POS OR PIXEL POS BECAUSE THAT WOULD EXPLAIN THE STRANGE BEHAVIOUR
+	float3 lightToPixelVec = position.xyz - lightPosition; //////////////////////////////////////////TODO: ASK IF WORLD POS IS ACTUALLY GIVING WORLD POS OR PIXEL POS BECAUSE THAT WOULD EXPLAIN THE STRANGE BEHAVIOUR
 	float distance = length(lightToPixelVec);
 
 	if (distance > pointLightRange)
@@ -71,7 +72,7 @@ float4 main(InputType input) : SV_TARGET
 
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
-	lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour, input.position);
+	lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour, input.worldPos);
 
 	return lightColour * textureColour;
 }
