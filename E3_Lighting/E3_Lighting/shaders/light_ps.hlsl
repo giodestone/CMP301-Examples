@@ -78,18 +78,21 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 	float angle = cos(0.785f); //0.785 radians to cos which is 45 degrees
 
 	//now calculate the distance between the pixel and the spot light position
-	float3 lightToPixelVec = position.xyz - lightPosition;
+	float3 lightToPixelVec = lightPosition - position.xyz;
+	//lightToPixelVec *= -1.f;
 	float distance = length(lightToPixelVec); //to make lightToPixelVec a unit vector later
 
 	if (distance > pointLightRange) //out of range
 		return colour;
+
+	//////////////////////////////////////TODO: LIGHTING INCORRECTLY AT +1 IT LOOKS LIKE SPHERE IS LIT FROM -1.
 
 	lightToPixelVec /= distance; //make unit vector
 
 	float cosAngleBetweenTwo = dot(lightToPixelVec, lightDirection); //calculate angle between two
 
 	if (cosAngleBetweenTwo > angle) // light the pixel
-		return colour * diffuseColour;
+		return colour + diffuseColour;
 		
 	
 	return colour; //otherwise dont light
