@@ -25,7 +25,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	//Setup light params
 	this->lightingDetails.ambientColor = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.f);
 	this->lightingDetails.diffuseColor = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
-	this->lightingDetails.direction = XMFLOAT3(-0.35f, -0.65f, 0.f);
+	this->lightingDetails.direction = XMFLOAT3(0.f, -1.f, 0.f);
 	this->lightingDetails.position = XMFLOAT3(5.f, 5.f, 3.f);
 
 	//initialise the floats for imgui
