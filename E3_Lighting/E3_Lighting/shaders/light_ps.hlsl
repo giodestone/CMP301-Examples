@@ -92,10 +92,10 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 
 	float cosAngleBetweenTwo = dot(lightDirection, lightToPixelVec); //calculate angle between the normal of the light and the normal of the vector between px and point
 
-	float normalIntensity = saturate(dot(normal, lightDirection)); //so the light respects the normals
+	//float normalIntensity = saturate(dot(normal, lightDirection)); //so the light respects the normals
 
-	if (cosAngleBetweenTwo > angle && normalIntensity > 0.f) // light the pixel if the angle is correct and the normal is correctly aligned
-		return colour + (diffuseColour * normalIntensity);
+	if (cosAngleBetweenTwo > angle /*&& normalIntensity > 0.f*/) // light the pixel if the angle is correct and the normal is correctly aligned
+		return colour + (diffuseColour /** normalIntensity*/);
 		
 	return colour; //otherwise dont light
 }
