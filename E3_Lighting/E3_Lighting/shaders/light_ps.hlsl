@@ -30,14 +30,22 @@ struct InputType
 };
 
 // Calculate lighting intensity based on direction and normal. Combine with light colour.
+float4 calculateLightingDirectional(float3 lightDirection, float3 normal, float4 diffuse)
+{
+	float4 color = ambientColour;
+
+	//calculate intensity of direcitonal light at pixel
+	float intensity = saturate(dot(normal, lightDirection));
+	
+	// add it to the color
+	color += saturate(diffuse * intensity); //saturate clamps between 0 and 1
+
+	return color;
+}
+
+// Calculate a point light
 float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
-	//calculate ambient and diffuse
-	//float intensity = saturate(dot(normal, lightDirection));
-	//float4 colour = saturate(diffuse * intensity);
-	//NOTE GOTTEN RID OF THE DIRECTIONAL LIGHT FUNCTIONALITY!
-
-	// https://www.braynzarsoft.net/viewtutorial/q16390-17-point-lights
 	float4 colour = diffuse * ambientColour; //Add ambient to colour
 
 	//now calculate point light
@@ -51,7 +59,7 @@ float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffu
 
 	float lightIntensity = -dot(lightToPixelVec, normal);
 
-	if (lightIntensity > 0.f)
+	if (lightIntensity > 0.f) //for attenuation
 	{
 		float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
 		
@@ -65,54 +73,31 @@ float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffu
 	return colour;
 }
 
+// Calculate a spot light
 float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
-	//calculate ambient and diffuse
-	//float intensity = saturate(dot(normal, lightDirection));
-	//float4 colour = saturate(diffuse * intensity);
-	//NOTE GOTTEN RID OF THE DIRECTIONAL LIGHT FUNCTIONALITY!
-
-	// https://www.braynzarsoft.net/viewtutorial/q16390-17-point-lights
 	float4 colour = diffuse * ambientColour; //Add ambient to colour
 
 	float angle = cos(0.785f); //0.785 radians to cos which is 45 degrees
 
 	//now calculate the distance between the pixel and the spot light position
 	float3 lightToPixelVec = lightPosition - position.xyz;
-	//lightToPixelVec *= -1.f;
+
 	float distance = length(lightToPixelVec); //to make lightToPixelVec a unit vector later
 
-	if (distance > pointLightRange) //out of range
+	if (distance > pointLightRange) //if out of range
 		return colour;
 
-	//////////////////////////////////////TODO: LIGHTING INCORRECTLY AT +1 IT LOOKS LIKE SPHERE IS LIT FROM -1.
+	lightToPixelVec /= distance; //make unit vector as to make it easy for later
 
-	lightToPixelVec /= distance; //make unit vector
+	float cosAngleBetweenTwo = dot(lightDirection, lightToPixelVec); //calculate angle between the normal of the light and the normal of the vector between px and point
 
-	float cosAngleBetweenTwo = dot(lightToPixelVec, lightDirection); //calculate angle between two
+	float normalIntensity = saturate(dot(normal, lightDirection));
 
-	if (cosAngleBetweenTwo > angle) // light the pixel
-		return colour + diffuseColour;
+	if (cosAngleBetweenTwo > angle && normalIntensity > 0.f) // light the pixel if the angle is correct
+		return colour + (diffuseColour * normalIntensity);
 		
-	
 	return colour; //otherwise dont light
-
-
-
-	/*float lightIntensity = -dot(lightToPixelVec, normal);
-
-	if (lightIntensity > 0.f)
-	{
-		float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
-
-		lightColour += saturate(lightIntensity * diffuse * diffuseColour);
-
-		lightColour /= attenuationConstant + (attenuationLinear * distance) + (attenuationExponential * (distance * distance));
-
-		colour = saturate(lightColour + colour);
-	}*/
-
-	//return colour;
 }
 
 
@@ -123,7 +108,9 @@ float4 main(InputType input) : SV_TARGET
 
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
-	lightColour = calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	//lightColour = calculateLightingDirectional(-lightDirection, input.normal, diffuseColour);
+	lightColour = calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	//lightColour = calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
 
 	return lightColour * textureColour;
 }

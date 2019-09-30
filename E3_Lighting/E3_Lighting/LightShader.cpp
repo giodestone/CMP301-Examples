@@ -86,7 +86,7 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light)
+void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light, LightingDetails& lightingDetails)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -121,10 +121,10 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr->ambientColour = light->getAmbientColour();
 	
 	lightPtr->lightPosition = light->getPosition();
-	lightPtr->pointLightRange = 5000.f;
-	lightPtr->attenuationConstant = 0.01f;
-	lightPtr->attenuationLinear = 0.01f;
-	lightPtr->attenuationExponential = 0.0f;
+	lightPtr->pointLightRange = lightingDetails.range;
+	lightPtr->attenuationConstant = lightingDetails.attenuationConstant;
+	lightPtr->attenuationLinear = lightingDetails.attenuationLinear;
+	lightPtr->attenuationExponential = lightingDetails.attenuationExponential;
 
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);

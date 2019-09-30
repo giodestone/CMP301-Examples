@@ -18,6 +18,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Create Mesh object and shader object
 	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
 	sphereMesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	//lightDebugSphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	shader = new LightShader(renderer->getDevice(), hwnd);
 	light = new Light;
 	
@@ -25,25 +26,10 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	this->lightingDetails.ambientColor = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.f);
 	this->lightingDetails.diffuseColor = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
 	this->lightingDetails.direction = XMFLOAT3(0.f, -1.f, 0.f);
-	this->lightingDetails.position = XMFLOAT3(-2.f, 0.f, 0.f);
+	this->lightingDetails.position = XMFLOAT3(5.f, 5.f, 3.f);
 
 	//initialise the floats for imgui
-	lightingDetails.ambientColorF = new float[4];
-	lightingDetails.ambientColorF[0] = lightingDetails.ambientColor.x;
-	lightingDetails.ambientColorF[1] = lightingDetails.ambientColor.y;
-	lightingDetails.ambientColorF[2] = lightingDetails.ambientColor.z;
-	lightingDetails.ambientColorF[3] = lightingDetails.ambientColor.w;
-
-	lightingDetails.diffuseColorF = new float[4];
-	lightingDetails.diffuseColorF[0] = lightingDetails.diffuseColor.x;
-	lightingDetails.diffuseColorF[1] = lightingDetails.diffuseColor.y;
-	lightingDetails.diffuseColorF[2] = lightingDetails.diffuseColor.z;
-	lightingDetails.diffuseColorF[3] = lightingDetails.diffuseColor.w;
-
-	lightingDetails.positionF = new float[3];
-	lightingDetails.positionF[0] = lightingDetails.position.x;
-	lightingDetails.positionF[1] = lightingDetails.position.y;
-	lightingDetails.positionF[2] = lightingDetails.position.z;
+	lightingDetails.UpdatePointersFromMatrices();
 }
 
 
@@ -65,14 +51,7 @@ App1::~App1()
 		shader = 0;
 	}
 
-	delete[] lightingDetails.ambientColorF;
-	lightingDetails.ambientColorF = nullptr;
 
-	delete[] lightingDetails.diffuseColorF;
-	lightingDetails.diffuseColorF = nullptr;
-
-	delete[] lightingDetails.positionF;
-	lightingDetails.positionF = nullptr;
 }
 
 
@@ -81,19 +60,7 @@ bool App1::frame()
 	bool result;
 
 	//Update XMFLOAT4 colours from values set in the imgui
-	lightingDetails.ambientColor.x = lightingDetails.ambientColorF[0];
-	lightingDetails.ambientColor.y = lightingDetails.ambientColorF[1];
-	lightingDetails.ambientColor.z = lightingDetails.ambientColorF[2];
-	lightingDetails.ambientColor.w = lightingDetails.ambientColorF[3];
-
-	lightingDetails.diffuseColor.x = lightingDetails.diffuseColorF[0];
-	lightingDetails.diffuseColor.y = lightingDetails.diffuseColorF[1];
-	lightingDetails.diffuseColor.z = lightingDetails.diffuseColorF[2];
-	lightingDetails.diffuseColor.w = lightingDetails.diffuseColorF[3];
-
-	lightingDetails.position.x = lightingDetails.positionF[0];
-	lightingDetails.position.y = lightingDetails.positionF[1];
-	lightingDetails.position.z = lightingDetails.positionF[2];
+	lightingDetails.UpdateMatricesFromPointers();
 
 	//now update the values inside of the light class
 	light->setDiffuseColour(lightingDetails.diffuseColor.x, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.w);
@@ -134,14 +101,20 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, lightingDetails);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	sphereMesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, lightingDetails);
 	shader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
 
+	//create position matrix for the debug light sphere
+	auto lightPosMatrix = worldMatrix * XMMatrixTranslation(light->getPosition().x, light->getPosition().y, light->getPosition().z);
 
+	////draw it, shade it etc.
+	//lightDebugSphere->sendData(renderer->getDeviceContext());
+	//shader->setShaderParameters(renderer->getDeviceContext(), lightPosMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, lightingDetails);
+	//shader->render(renderer->getDeviceContext(), lightDebugSphere->getIndexCount());
 	// Render GUI
 	gui();
 
@@ -165,6 +138,11 @@ void App1::gui()
 	ImGui::ColorEdit4("Ambient Colour", lightingDetails.ambientColorF);
 	ImGui::ColorEdit4("Diffuse Colour", lightingDetails.diffuseColorF);
 	ImGui::DragFloat3("Light Position", lightingDetails.positionF, 0.1f, -1000.f, 1000.f);
+
+	ImGui::DragFloat("Light Range", &lightingDetails.range, 0.25f, 0.f);
+	ImGui::DragFloat("Constant Attenutation", &lightingDetails.attenuationConstant, 0.05f, 0.f);
+	ImGui::DragFloat("Linear Attenutation", &lightingDetails.attenuationLinear, 0.001f, 0.f);
+	ImGui::DragFloat("Exponential Attenutation", &lightingDetails.attenuationExponential, 0.0001f, 0.f);
 
 	// Render UI
 	ImGui::Render();

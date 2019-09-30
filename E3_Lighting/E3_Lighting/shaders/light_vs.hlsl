@@ -26,6 +26,7 @@ OutputType main(InputType input)
 {
 	OutputType output;
 
+	// add the world pos to the output for pixel shader lights
 	output.worldPos = mul(input.position, worldMatrix);
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
