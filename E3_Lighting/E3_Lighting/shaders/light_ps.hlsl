@@ -46,28 +46,28 @@ float4 calculateLightingDirectional(float3 lightDirection, float3 normal, float4
 // Calculate a point light
 float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
-	float4 colour = diffuse * ambientColour; //Add ambient to colour
+	float4 colour = ambientColour; //Add ambient to colour
 
 	//now calculate point light
-	float3 lightToPixelVec = position.xyz - lightPosition;
-	float distance = length(lightToPixelVec);
+	float3 lightToPixelVec = position.xyz - lightPosition; //get vector between pos and light
+	float distance = length(lightToPixelVec); //get the length between the two
 
-	if (distance > pointLightRange)
-		return colour;
+	if (distance > pointLightRange) //dont draw if out of range
+		return colour; // i.e. just return color (ambient
 
-	lightToPixelVec /= distance;
+	lightToPixelVec /= distance; //make it a unit vector
 
-	float lightIntensity = -dot(lightToPixelVec, normal);
+	float normalIntensity = saturate(dot(normal, lightDirection));
+
+	float lightIntensity = -dot(lightToPixelVec, normal); //get the instensity the negative dot fixes the light
 
 	if (lightIntensity > 0.f) //for attenuation
 	{
-		float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
-		
-		lightColour += saturate(lightIntensity * diffuse * diffuseColour);
+		float4 lightColour = saturate(lightIntensity * diffuse * diffuseColour); //add the instensity
 
-		lightColour /= attenuationConstant + (attenuationLinear * distance) + (attenuationExponential * (distance * distance));
+		lightColour /= attenuationConstant + (attenuationLinear * distance) + (attenuationExponential * (distance * distance)); //divide the intensity at the pixel by the attenuation factor
 
-		colour = saturate(lightColour + colour);
+		colour = saturate(lightColour + colour); //finally add the calculated light intensity at the pixel to the final colour and clamp between 0 and 1
 	}
 
 	return colour;
@@ -76,7 +76,7 @@ float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffu
 // Calculate a spot light
 float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
-	float4 colour = diffuse * ambientColour; //Add ambient to colour
+	float4 colour = ambientColour; //Add ambient to colour
 
 	float angle = cos(0.785f); //0.785 radians to cos which is 45 degrees
 
@@ -88,13 +88,13 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 	if (distance > pointLightRange) //if out of range
 		return colour;
 
-	lightToPixelVec /= distance; //make unit vector as to make it easy for later
+	lightToPixelVec /= distance; //make unit vector as to make calculating the angle possible
 
 	float cosAngleBetweenTwo = dot(lightDirection, lightToPixelVec); //calculate angle between the normal of the light and the normal of the vector between px and point
 
-	float normalIntensity = saturate(dot(normal, lightDirection));
+	float normalIntensity = saturate(dot(normal, lightDirection)); //so the light respects the normals
 
-	if (cosAngleBetweenTwo > angle && normalIntensity > 0.f) // light the pixel if the angle is correct
+	if (cosAngleBetweenTwo > angle && normalIntensity > 0.f) // light the pixel if the angle is correct and the normal is correctly aligned
 		return colour + (diffuseColour * normalIntensity);
 		
 	return colour; //otherwise dont light
