@@ -109,8 +109,8 @@ float4 main(InputType input) : SV_TARGET
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
 	//lightColour = calculateLightingDirectional(-lightDirection, input.normal, diffuseColour);
-	lightColour = calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
-	//lightColour = calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	//lightColour = calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	lightColour = calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
 
 	return lightColour * textureColour;
 }
