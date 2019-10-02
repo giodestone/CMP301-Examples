@@ -144,8 +144,6 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	auto res = deviceContext->Map(multiLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	multiLightBufferPtr = (MultiLightBufferType*)mappedResource.pData;
 
-	/////////////////////////TODO: SOMETHING WRONG WHILE MAPPING THE RESOURCE, PROBABLY TO DO WHERE ITS BEING SENT THIS NEEDS TO BE FIXED!
-
 	for (size_t i = 0; i < 2; ++i) //2 because thats how many there can be on GPU
 	{
 		multiLightBufferPtr->diffuse[i] = lights[i]->getDiffuseColour();
