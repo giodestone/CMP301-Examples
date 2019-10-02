@@ -6,6 +6,9 @@
 #include "DXF.h"	// include dxframework
 #include "LightShader.h"
 
+#include <memory>
+
+#include "ExtraLightParams.h"
 
 class App1 : public BaseApplication
 {
@@ -24,7 +27,20 @@ protected:
 private:
 	LightShader* shader;
 	PlaneMesh* mesh;
+
+	SphereMesh* ball1;
+	CubeMesh* cube1;
+
+	std::vector<std::unique_ptr<Light>> lights;
+
 	Light* light;
+
+	float lightPos[3];
+
+	ExtraLightParams extraLightParams;
+
+
+	std::vector<Light*> getLights();
 };
 
 #endif

@@ -39,5 +39,8 @@
     <ClInclude Include="LightShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExtraLightParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

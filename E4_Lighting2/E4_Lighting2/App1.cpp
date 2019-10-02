@@ -22,6 +22,31 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	light->setPosition(50.0f, 10.0f, 50.0f);
 
+	auto light1Point = std::make_unique<Light>();
+	light1Point.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
+	light1Point.get()->setDiffuseColour(1.f, 0.f, 1.f, 1.f);
+	light1Point.get()->setPosition(-10.f, 0.f, 0.f);
+	lights.push_back(std::move(light1Point));
+	
+	auto light2Point = std::make_unique<Light>();
+	light2Point.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
+	light2Point.get()->setDiffuseColour(0.f, 1.f, 1.f, 1.f);
+	light2Point.get()->setPosition(10.f, 0.f, 0.f);
+	lights.push_back(std::move(light2Point));
+
+	auto lightDirectional = std::make_unique<Light>();
+	lightDirectional.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
+	lightDirectional.get()->setDiffuseColour(1.f, 1.f, 1.f, 1.f);
+	lightDirectional.get()->setDirection(0.5f, 0.5f, 0.f);
+	lights.push_back(std::move(lightDirectional));
+
+	ball1 = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	cube1 = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
+
+	//Set position ptr for ImGUI
+	lightPos[0] = light->getPosition().x;
+	lightPos[1] = light->getPosition().y;
+	lightPos[2] = light->getPosition().z;
 }
 
 
@@ -42,6 +67,12 @@ App1::~App1()
 		delete shader;
 		shader = 0;
 	}
+
+	delete ball1;
+	ball1 = nullptr;
+
+	delete cube1;
+	cube1 = nullptr;
 }
 
 
@@ -55,6 +86,9 @@ bool App1::frame()
 		return false;
 	}
 	
+	//update position from ImGUI
+	light->setPosition(lightPos[0], lightPos[1], lightPos[2]);
+
 	// Render the graphics.
 	result = render();
 	if (!result)
@@ -82,8 +116,17 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraLightParams);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	ball1->sendData(renderer->getDeviceContext());
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraLightParams);
+	shader->render(renderer->getDeviceContext(), ball1->getIndexCount());
+
+	auto transform = XMMatrixTranslation(15.f, 25.f, 20.f) * worldMatrix;
+	cube1->sendData(renderer->getDeviceContext());
+	shader->setShaderParameters(renderer->getDeviceContext(), transform, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraLightParams);
+	shader->render(renderer->getDeviceContext(), cube1->getIndexCount());
 
 	// Render GUI
 	gui();
@@ -106,8 +149,26 @@ void App1::gui()
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 	ImGui::Text("Press E to raise camera \nto see the plane being rendered");
 
+	ImGui::DragFloat3("Light Position", lightPos, 0.1f);
+	ImGui::DragFloat("Constant Attenuation", &extraLightParams.attConst, 0.1f, 0.f);
+	ImGui::DragFloat("Linear Attenuation", &extraLightParams.attLin, 0.01f, 0.f);
+	ImGui::DragFloat("Exponential Attenuation", &extraLightParams.attExp, 0.0001f, 0.f);
+
+
 	// Render UI
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+std::vector<Light*> App1::getLights()
+{
+	std::vector<Light*> lightReturn;
+	
+	for (size_t i = 0; i < lights.size(); ++i)
+	{
+		lightReturn.push_back(lights.at(i).get());
+	}
+
+	return std::vector<Light*>();
 }
 

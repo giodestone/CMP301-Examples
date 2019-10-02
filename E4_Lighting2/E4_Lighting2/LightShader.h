@@ -2,6 +2,8 @@
 
 #include "DXF.h"
 
+#include "ExtraLightParams.h"
+
 using namespace std;
 using namespace DirectX;
 
@@ -14,13 +16,18 @@ private:
 		XMFLOAT4 diffuse;
 		XMFLOAT3 position;
 		float padding;
+
+		float attenuationConstant;
+		float attenuationLinear;
+		float attenuationExponential;
+		float padding2;
 	};
 
 public:
 	LightShader(ID3D11Device* device, HWND hwnd);
 	~LightShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light, ExtraLightParams& extraLightParams);
 
 private:
 	void initShader(const wchar_t* vs, const wchar_t* ps);
