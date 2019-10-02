@@ -39,7 +39,7 @@ private:
 
 	ExtraLightParams extraLightParams;
 
-
+	// Getting an array of lights from the light vector
 	std::vector<Light*> getLights();
 };
 

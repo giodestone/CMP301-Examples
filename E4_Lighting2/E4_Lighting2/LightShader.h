@@ -13,9 +13,9 @@ private:
 	struct LightBufferType
 	{
 		XMFLOAT4 ambient;
-		XMFLOAT4 diffuse;
-		XMFLOAT3 position;
-		float padding;
+		//XMFLOAT4 diffuse;
+		//XMFLOAT3 position;
+		//float padding;
 
 		float attenuationConstant;
 		float attenuationLinear;
@@ -23,11 +23,17 @@ private:
 		float padding2;
 	};
 
+	struct MultiLightBufferType
+	{
+		XMFLOAT4 diffuse[2]; //just use float4 before you do anything stupid... if you can think of it taking up 4 as you expect then keep it there but otherwise dont even think of using anything other than float4 as you have to pad it afterwards and it needs to be consistently padded. Seriously. Dont.
+		XMFLOAT4 position[2];
+	};
+
 public:
 	LightShader(ID3D11Device* device, HWND hwnd);
 	~LightShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Light* light, ExtraLightParams& extraLightParams);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, std::vector<Light *> lights, ExtraLightParams& extraLightParams);
 
 private:
 	void initShader(const wchar_t* vs, const wchar_t* ps);
@@ -36,5 +42,6 @@ private:
 	ID3D11Buffer * matrixBuffer;
 	ID3D11SamplerState* sampleState;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* multiLightBuffer;
 };
 

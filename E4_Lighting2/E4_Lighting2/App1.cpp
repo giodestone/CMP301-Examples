@@ -34,11 +34,11 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light2Point.get()->setPosition(10.f, 0.f, 0.f);
 	lights.push_back(std::move(light2Point));
 
-	auto lightDirectional = std::make_unique<Light>();
-	lightDirectional.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
-	lightDirectional.get()->setDiffuseColour(1.f, 1.f, 1.f, 1.f);
-	lightDirectional.get()->setDirection(0.5f, 0.5f, 0.f);
-	lights.push_back(std::move(lightDirectional));
+	//auto lightDirectional = std::make_unique<Light>();
+	//lightDirectional.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
+	//lightDirectional.get()->setDiffuseColour(1.f, 1.f, 1.f, 1.f);
+	//lightDirectional.get()->setDirection(0.5f, 0.5f, 0.f);
+	//lights.push_back(std::move(lightDirectional));
 
 	ball1 = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	cube1 = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
@@ -116,16 +116,16 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraLightParams);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), getLights(), extraLightParams);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	ball1->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraLightParams);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), getLights(), extraLightParams);
 	shader->render(renderer->getDeviceContext(), ball1->getIndexCount());
 
 	auto transform = XMMatrixTranslation(15.f, 25.f, 20.f) * worldMatrix;
 	cube1->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), transform, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraLightParams);
+	shader->setShaderParameters(renderer->getDeviceContext(), transform, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), getLights(), extraLightParams);
 	shader->render(renderer->getDeviceContext(), cube1->getIndexCount());
 
 	// Render GUI
@@ -169,6 +169,6 @@ std::vector<Light*> App1::getLights()
 		lightReturn.push_back(lights.at(i).get());
 	}
 
-	return std::vector<Light*>();
+	return lightReturn;
 }
 

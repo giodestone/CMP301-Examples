@@ -36,6 +36,12 @@ LightShader::~LightShader()
 		lightBuffer = 0;
 	}
 
+	if (multiLightBuffer)
+	{
+		multiLightBuffer->Release();
+		multiLightBuffer = 0;
+	}
+
 	//Release base shader components
 	BaseShader::~BaseShader();
 }
@@ -82,15 +88,24 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	lightBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
-
+	// setup multi light buffer
+	D3D11_BUFFER_DESC multiLightBufferDesc;
+	
+	multiLightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	multiLightBufferDesc.ByteWidth = sizeof(MultiLightBufferType);
+	multiLightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	multiLightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	multiLightBufferDesc.MiscFlags = 0;
+	multiLightBufferDesc.StructureByteStride = 0;
+	renderer->CreateBuffer(&multiLightBufferDesc, NULL, &multiLightBuffer);
 }
 
 
-void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light, ExtraLightParams& extraLightParams)
+void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, std::vector<Light *> lights, ExtraLightParams& extraLightParams)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBufferType* dataPtr;
+	MatrixBufferType* dataPtr = nullptr;
 	
 	XMMATRIX tworld, tview, tproj;
 
@@ -109,13 +124,13 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 
 	//Additional
 	// Send light data to pixel shader
-	LightBufferType* lightPtr;
+	LightBufferType* lightPtr = nullptr;
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->ambient = light->getAmbientColour();
-	lightPtr->diffuse = light->getDiffuseColour();
-	lightPtr->position = light->getPosition();
-	lightPtr->padding = 0.0f;
+	lightPtr->ambient = lights[0]->getAmbientColour();
+	//lightPtr->diffuse = light->getDiffuseColour();
+	//lightPtr->position = light->getPosition();
+	//lightPtr->padding = 0.0f;
 
 	lightPtr->attenuationConstant = extraLightParams.attConst;
 	lightPtr->attenuationLinear = extraLightParams.attLin;
@@ -123,6 +138,22 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
+
+	//send multi light cbuffer
+	MultiLightBufferType* multiLightBufferPtr = nullptr;
+	auto res = deviceContext->Map(multiLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	multiLightBufferPtr = (MultiLightBufferType*)mappedResource.pData;
+
+	/////////////////////////TODO: SOMETHING WRONG WHILE MAPPING THE RESOURCE, PROBABLY TO DO WHERE ITS BEING SENT THIS NEEDS TO BE FIXED!
+
+	for (size_t i = 0; i < 2; ++i) //2 because thats how many there can be on GPU
+	{
+		multiLightBufferPtr->diffuse[i] = lights[i]->getDiffuseColour();
+		multiLightBufferPtr->position[i] = XMFLOAT4(lights[i]->getPosition().x, lights[i]->getPosition().y, lights[i]->getPosition().z, 1.f);
+	}
+
+	deviceContext->Unmap(multiLightBuffer, 0);
+	deviceContext->PSSetConstantBuffers(1, 1, &multiLightBuffer);
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
