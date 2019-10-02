@@ -82,4 +82,6 @@ struct LightingDetails
 	float attenuationConstant = 0.25f;
 	float attenuationLinear = 0.001f;
 	float attenuationExponential = 0.f;
+
+	XMFLOAT3 cameraPos;
 };

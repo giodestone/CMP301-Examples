@@ -30,6 +30,12 @@ private:
 		XMFLOAT3 padding3;
 	};
 
+	struct CameraBufferType
+	{
+		XMFLOAT3 cameraPos;
+		float padding;
+	};
+
 public:
 	LightShader(ID3D11Device* device, HWND hwnd);
 	~LightShader();
@@ -43,5 +49,6 @@ private:
 	ID3D11Buffer * matrixBuffer;
 	ID3D11SamplerState* sampleState;
 	ID3D11Buffer* lightBuffer;
+	ID3D11Buffer* cameraBuffer; //for the passing camera pos into vertex shader
 };
 

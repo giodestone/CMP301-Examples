@@ -18,18 +18,18 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Create Mesh object and shader object
 	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
 	sphereMesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
-	//lightDebugSphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	lightDebugSphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	shader = new LightShader(renderer->getDevice(), hwnd);
 	light = new Light;
 	
 	//Setup light params
 	this->lightingDetails.ambientColor = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.f);
 	this->lightingDetails.diffuseColor = XMFLOAT4(0.9f, 1.f, 0.1f, 0.f);
-	this->lightingDetails.direction = XMFLOAT3(0.f, -1.f, 0.f);
+	this->lightingDetails.direction = XMFLOAT3(1.f, -0.f, 0.f);
 	this->lightingDetails.position = XMFLOAT3(5.f, 5.f, 3.f);
 
 	this->light->setSpecularColour(1.f, 1.f, 1.f, 0.f);
-	this->light->setSpecularPower(1.f);
+	this->light->setSpecularPower(100.f);
 
 	//initialise the floats for imgui
 	lightingDetails.UpdatePointersFromMatrices();
@@ -61,6 +61,8 @@ App1::~App1()
 bool App1::frame()
 {
 	bool result;
+
+	lightingDetails.cameraPos = camera->getPosition();
 
 	//Update XMFLOAT4 colours from values set in the imgui
 	lightingDetails.UpdateMatricesFromPointers();
@@ -114,10 +116,10 @@ bool App1::render()
 	//create position matrix for the debug light sphere
 	auto lightPosMatrix = worldMatrix * XMMatrixTranslation(light->getPosition().x, light->getPosition().y, light->getPosition().z);
 
-	////draw it, shade it etc.
-	//lightDebugSphere->sendData(renderer->getDeviceContext());
-	//shader->setShaderParameters(renderer->getDeviceContext(), lightPosMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, lightingDetails);
-	//shader->render(renderer->getDeviceContext(), lightDebugSphere->getIndexCount());
+	//draw it, shade it etc.
+	lightDebugSphere->sendData(renderer->getDeviceContext());
+	shader->setShaderParameters(renderer->getDeviceContext(), lightPosMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, lightingDetails);
+	shader->render(renderer->getDeviceContext(), lightDebugSphere->getIndexCount());
 	// Render GUI
 	gui();
 

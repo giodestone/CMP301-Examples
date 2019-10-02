@@ -7,6 +7,12 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 };
 
+cbuffer CameraBuffer : register(b1)
+{
+	float3 cameraPos;
+	float padding;
+}
+
 struct InputType
 {
 	float4 position : POSITION;
@@ -43,8 +49,7 @@ OutputType main(InputType input)
 	output.normal = normalize(output.normal);
 
 	// unit vector from camera to the world position
-	float3 cameraPos = float3(viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2]);
-	output.viewVector = cameraPos - output.worldPos.xyz;
+	output.viewVector = cameraPos.xyz - output.worldPos.xyz;
 	output.viewVector = normalize(output.viewVector);
 
 	return output;

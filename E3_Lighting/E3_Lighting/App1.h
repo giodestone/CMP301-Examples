@@ -25,7 +25,7 @@ private:
 	LightShader* shader;
 	PlaneMesh* mesh;
 	SphereMesh* sphereMesh;
-	//SphereMesh* lightDebugSphere;
+	SphereMesh* lightDebugSphere;
 	Light* light;
 
 	LightingDetails lightingDetails;

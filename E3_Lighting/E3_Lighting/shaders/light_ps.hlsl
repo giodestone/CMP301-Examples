@@ -106,10 +106,10 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 }
 
 
-float4 calculateSpecular(InputType input)
+float4 calculateSpecular(float3 viewVector, float3 normal)
 {
-	float3 halfWay = normalize(lightDirection + input.viewVector);
-	float specularIntensity = pow(max(dot(input.normal, halfWay), 0.f), specularPower);
+	float3 halfWay = normalize(-lightDirection + viewVector);
+	float specularIntensity = pow(max(dot(normal, halfWay), 0.f), specularPower);
 
 	return specularColor * specularIntensity;
 }
@@ -121,12 +121,12 @@ float4 main(InputType input) : SV_TARGET
 
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
-	//lightColour = calculateLightingDirectional(-lightDirection, input.normal, diffuseColour);
-	//lightColour = calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	//lightColour += calculateLightingDirectional(-lightDirection, input.normal, diffuseColour);
+	//lightColour += calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
 	lightColour += calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
 
 	lightColour *= textureColour;
-	lightColour += calculateSpecular(input);
+	lightColour += calculateSpecular(input.viewVector, input.normal);
 	return lightColour;
 }
 
