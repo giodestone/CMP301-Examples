@@ -28,6 +28,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	this->lightingDetails.direction = XMFLOAT3(0.f, -1.f, 0.f);
 	this->lightingDetails.position = XMFLOAT3(5.f, 5.f, 3.f);
 
+	this->light->setSpecularColour(1.f, 1.f, 1.f, 0.f);
+	this->light->setSpecularPower(1.f);
+
 	//initialise the floats for imgui
 	lightingDetails.UpdatePointersFromMatrices();
 }
@@ -63,7 +66,7 @@ bool App1::frame()
 	lightingDetails.UpdateMatricesFromPointers();
 
 	//now update the values inside of the light class
-	light->setDiffuseColour(lightingDetails.diffuseColor.x, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.w);
+	light->setDiffuseColour(lightingDetails.diffuseColor.x, lightingDetails.diffuseColor.y, lightingDetails.diffuseColor.z, lightingDetails.diffuseColor.w);
 	light->setDirection(lightingDetails.direction.x, lightingDetails.direction.y, lightingDetails.direction.z); //Not updated via GUI
 	light->setAmbientColour(lightingDetails.ambientColor.x, lightingDetails.ambientColor.y, lightingDetails.ambientColor.z, lightingDetails.ambientColor.w);
 	light->setPosition(lightingDetails.position.x, lightingDetails.position.y, lightingDetails.position.z);

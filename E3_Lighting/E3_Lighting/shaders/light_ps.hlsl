@@ -19,6 +19,10 @@ cbuffer LightBuffer : register(b0)
 	float attenuationConstant;
 	float attenuationLinear;
 	float attenuationExponential;
+
+	float4 specularColor;
+	float specularPower;
+	float3 padding3;
 };
 
 struct InputType
@@ -27,6 +31,7 @@ struct InputType
 	float4 worldPos : POSITION0;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
+	float3 viewVector : TEXCOORD1;
 };
 
 // Calculate lighting intensity based on direction and normal. Combine with light colour.
@@ -101,18 +106,28 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 }
 
 
+float4 calculateSpecular(InputType input)
+{
+	float3 halfWay = normalize(lightDirection + input.viewVector);
+	float specularIntensity = pow(max(dot(input.normal, halfWay), 0.f), specularPower);
+
+	return specularColor * specularIntensity;
+}
+
 float4 main(InputType input) : SV_TARGET
 {
 	float4 textureColour;
-	float4 lightColour;
+	float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
 
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
 	//lightColour = calculateLightingDirectional(-lightDirection, input.normal, diffuseColour);
 	//lightColour = calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
-	lightColour = calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	lightColour += calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
 
-	return lightColour * textureColour;
+	lightColour *= textureColour;
+	lightColour += calculateSpecular(input);
+	return lightColour;
 }
 
 

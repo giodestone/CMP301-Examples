@@ -24,6 +24,10 @@ private:
 		float attenuationConstant;
 		float attenuationLinear;
 		float attenuationExponential;
+
+		XMFLOAT4 specularColor;
+		float specularPower;
+		XMFLOAT3 padding3;
 	};
 
 public:

@@ -126,6 +126,9 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr->attenuationLinear = lightingDetails.attenuationLinear;
 	lightPtr->attenuationExponential = lightingDetails.attenuationExponential;
 
+	lightPtr->specularColor = light->getSpecularColour();
+	lightPtr->specularPower = light->getSpecularPower();
+
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 
