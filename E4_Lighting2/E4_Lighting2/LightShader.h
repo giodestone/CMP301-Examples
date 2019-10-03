@@ -17,6 +17,10 @@ private:
 		//XMFLOAT3 position;
 		//float padding;
 
+		XMFLOAT3 directionalLightDireciton;
+		float padding;
+		XMFLOAT4 directionalLightDiffuse;
+
 		float attenuationConstant;
 		float attenuationLinear;
 		float attenuationExponential;

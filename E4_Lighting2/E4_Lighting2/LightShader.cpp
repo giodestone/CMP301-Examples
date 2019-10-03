@@ -132,6 +132,9 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	//lightPtr->position = light->getPosition();
 	//lightPtr->padding = 0.0f;
 
+	lightPtr->directionalLightDiffuse = XMFLOAT4(extraLightParams.directionalDiffuse);
+	lightPtr->directionalLightDireciton = XMFLOAT4(extraLightParams.directionalDirection);
+
 	lightPtr->attenuationConstant = extraLightParams.attConst;
 	lightPtr->attenuationLinear = extraLightParams.attLin;
 	lightPtr->attenuationExponential = extraLightParams.attExp;

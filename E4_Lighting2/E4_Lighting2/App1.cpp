@@ -2,13 +2,14 @@
 // Lab 1 example, simple coloured triangle mesh
 #include "App1.h"
 
+
 App1::App1()
 {
 	mesh = nullptr;
 	shader = nullptr;
 }
 
-void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input *in, bool VSYNC, bool FULL_SCREEN)
+void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN)
 {
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
@@ -27,7 +28,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light1Point.get()->setDiffuseColour(1.f, 0.f, 1.f, 1.f);
 	light1Point.get()->setPosition(-10.f, 0.f, 0.f);
 	lights.push_back(std::move(light1Point));
-	
+
 	auto light2Point = std::make_unique<Light>();
 	light2Point.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
 	light2Point.get()->setDiffuseColour(0.f, 1.f, 1.f, 1.f);
@@ -47,7 +48,18 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lightPos[0] = light->getPosition().x;
 	lightPos[1] = light->getPosition().y;
 	lightPos[2] = light->getPosition().z;
+
+
+	extraLightParams.directionalDiffuse[0] = 1.f;
+	extraLightParams.directionalDiffuse[1] = 0.5f;
+	extraLightParams.directionalDiffuse[2] = 0.f;
+	extraLightParams.directionalDiffuse[3] = 0.f;
+
+	extraLightParams.directionalDirection[0] = 0.5f;
+	extraLightParams.directionalDirection[1] = -0.5f;
+	extraLightParams.directionalDirection[2] = 0.f;
 }
+
 
 
 App1::~App1()
@@ -149,10 +161,13 @@ void App1::gui()
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 	ImGui::Text("Press E to raise camera \nto see the plane being rendered");
 
-	ImGui::DragFloat3("Light Position", lightPos, 0.1f);
+	//ImGui::DragFloat3("Light Position", lightPos, 0.1f);
 	ImGui::DragFloat("Constant Attenuation", &extraLightParams.attConst, 0.1f, 0.f);
 	ImGui::DragFloat("Linear Attenuation", &extraLightParams.attLin, 0.01f, 0.f);
 	ImGui::DragFloat("Exponential Attenuation", &extraLightParams.attExp, 0.0001f, 0.f);
+
+	ImGui::ColorEdit4("Directional Diffuse", extraLightParams.directionalDiffuse);
+	ImGui::DragFloat3("Directional Direction", extraLightParams.directionalDirection, 0.1f);
 
 
 	// Render UI
