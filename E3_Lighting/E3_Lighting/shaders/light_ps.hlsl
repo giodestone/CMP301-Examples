@@ -95,7 +95,6 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 	}
 
 	return colour;
-
 }
 
 
