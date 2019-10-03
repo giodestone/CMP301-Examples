@@ -150,7 +150,6 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr->ambientColour = light->getAmbientColour();
 	
 	lightPtr->lightPosition = light->getPosition();
-	lightPtr->pointLightRange = lightingDetails.range;
 	lightPtr->attenuationConstant = lightingDetails.attenuationConstant;
 	lightPtr->attenuationLinear = lightingDetails.attenuationLinear;
 	lightPtr->attenuationExponential = lightingDetails.attenuationExponential;

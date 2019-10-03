@@ -78,9 +78,8 @@ struct LightingDetails
 	XMFLOAT3 position;
 	float* positionF;
 
-	float range = 5000.f;
-	float attenuationConstant = 0.25f;
-	float attenuationLinear = 0.001f;
+	float attenuationConstant = 1.f;
+	float attenuationLinear = 0.125f;
 	float attenuationExponential = 0.f;
 
 	XMFLOAT3 cameraPos;

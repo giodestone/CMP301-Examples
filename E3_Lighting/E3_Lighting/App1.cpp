@@ -144,7 +144,6 @@ void App1::gui()
 	ImGui::ColorEdit4("Diffuse Colour", lightingDetails.diffuseColorF);
 	ImGui::DragFloat3("Light Position", lightingDetails.positionF, 0.1f, -1000.f, 1000.f);
 
-	ImGui::DragFloat("Light Range", &lightingDetails.range, 0.25f, 0.f);
 	ImGui::DragFloat("Constant Attenutation", &lightingDetails.attenuationConstant, 0.05f, 0.f);
 	ImGui::DragFloat("Linear Attenutation", &lightingDetails.attenuationLinear, 0.001f, 0.f);
 	ImGui::DragFloat("Exponential Attenutation", &lightingDetails.attenuationExponential, 0.0001f, 0.f);

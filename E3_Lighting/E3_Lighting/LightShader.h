@@ -20,7 +20,7 @@ private:
 		//for the point light
 		XMFLOAT3 lightPosition;
 		float padding2;
-		float pointLightRange;
+		float padding21;
 		float attenuationConstant;
 		float attenuationLinear;
 		float attenuationExponential;
