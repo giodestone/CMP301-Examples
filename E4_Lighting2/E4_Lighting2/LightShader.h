@@ -13,9 +13,7 @@ private:
 	struct LightBufferType
 	{
 		XMFLOAT4 ambient;
-		//XMFLOAT4 diffuse;
-		//XMFLOAT3 position;
-		//float padding;
+		XMFLOAT4 specularDiffuse;
 
 		XMFLOAT3 directionalLightDireciton;
 		float padding;
@@ -33,6 +31,12 @@ private:
 		XMFLOAT4 position[2];
 	};
 
+	struct CameraBufferType
+	{
+		XMFLOAT3 cameraPos;
+		float padding;
+	};
+
 public:
 	LightShader(ID3D11Device* device, HWND hwnd);
 	~LightShader();
@@ -47,5 +51,6 @@ private:
 	ID3D11SamplerState* sampleState;
 	ID3D11Buffer* lightBuffer;
 	ID3D11Buffer* multiLightBuffer;
+	ID3D11Buffer* cameraBuffer;
 };
 

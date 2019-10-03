@@ -52,6 +52,8 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 
+	D3D11_BUFFER_DESC cameraBufferDesc;
+
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
 	loadPixelShader(psFilename);
@@ -64,6 +66,16 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
+
+	//create a buffer for the camera description
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
+	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -122,18 +134,27 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
+	//camera buffer
+	CameraBufferType* cameraBDataPtr = nullptr;
+	HRESULT cameraResult;
+	cameraResult = deviceContext->Map(cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	cameraBDataPtr = (CameraBufferType*)mappedResource.pData;
+	cameraBDataPtr->cameraPos = XMFLOAT3(extraLightParams.cameraPos);
+	deviceContext->Unmap(cameraBuffer, 0);
+
+	deviceContext->VSSetConstantBuffers(1, 1, &cameraBuffer);
+
 	//Additional
 	// Send light data to pixel shader
 	LightBufferType* lightPtr = nullptr;
 	deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->ambient = lights[0]->getAmbientColour();
-	//lightPtr->diffuse = light->getDiffuseColour();
-	//lightPtr->position = light->getPosition();
-	//lightPtr->padding = 0.0f;
+	
+	lightPtr->ambient = XMFLOAT4(extraLightParams.ambientDiffuse);
+	lightPtr->specularDiffuse = XMFLOAT4(extraLightParams.specularDiffuse);
 
 	lightPtr->directionalLightDiffuse = XMFLOAT4(extraLightParams.directionalDiffuse);
-	lightPtr->directionalLightDireciton = XMFLOAT4(extraLightParams.directionalDirection);
+	lightPtr->directionalLightDireciton = XMFLOAT3(extraLightParams.directionalDirection);
 
 	lightPtr->attenuationConstant = extraLightParams.attConst;
 	lightPtr->attenuationLinear = extraLightParams.attLin;

@@ -33,10 +33,6 @@ private:
 
 	std::vector<std::unique_ptr<Light>> lights;
 
-	Light* light;
-
-	float lightPos[3];
-
 	ExtraLightParams extraLightParams;
 
 	// Getting an array of lights from the light vector

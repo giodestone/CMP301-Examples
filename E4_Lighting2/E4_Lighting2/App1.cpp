@@ -18,10 +18,6 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
 	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
 	shader = new LightShader(renderer->getDevice(), hwnd);
-	light = new Light;
-	light->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
-	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	light->setPosition(50.0f, 10.0f, 50.0f);
 
 	auto light1Point = std::make_unique<Light>();
 	light1Point.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
@@ -35,19 +31,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light2Point.get()->setPosition(10.f, 0.f, 0.f);
 	lights.push_back(std::move(light2Point));
 
-	//auto lightDirectional = std::make_unique<Light>();
-	//lightDirectional.get()->setAmbientColour(0.f, 0.f, 0.f, 1.f);
-	//lightDirectional.get()->setDiffuseColour(1.f, 1.f, 1.f, 1.f);
-	//lightDirectional.get()->setDirection(0.5f, 0.5f, 0.f);
-	//lights.push_back(std::move(lightDirectional));
-
 	ball1 = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	cube1 = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
-
-	//Set position ptr for ImGUI
-	lightPos[0] = light->getPosition().x;
-	lightPos[1] = light->getPosition().y;
-	lightPos[2] = light->getPosition().z;
 
 
 	extraLightParams.directionalDiffuse[0] = 1.f;
@@ -58,6 +43,16 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	extraLightParams.directionalDirection[0] = 0.5f;
 	extraLightParams.directionalDirection[1] = -0.5f;
 	extraLightParams.directionalDirection[2] = 0.f;
+
+	extraLightParams.ambientDiffuse[0] = 0.3f;
+	extraLightParams.ambientDiffuse[1] = 0.3f;
+	extraLightParams.ambientDiffuse[2] = 0.3f;
+	extraLightParams.ambientDiffuse[3] = 0.f;
+
+	extraLightParams.specularDiffuse[0] = 0.9f;
+	extraLightParams.specularDiffuse[1] = 0.9f;
+	extraLightParams.specularDiffuse[2] = 0.9f;
+	extraLightParams.specularDiffuse[3] = 0.f;
 }
 
 
@@ -97,9 +92,11 @@ bool App1::frame()
 	{
 		return false;
 	}
-	
-	//update position from ImGUI
-	light->setPosition(lightPos[0], lightPos[1], lightPos[2]);
+
+	//Set camera pos to be used later by the vertex shader
+	extraLightParams.cameraPos[0] = camera->getPosition().x;
+	extraLightParams.cameraPos[1] = camera->getPosition().y;
+	extraLightParams.cameraPos[2] = camera->getPosition().z;
 
 	// Render the graphics.
 	result = render();
@@ -166,6 +163,8 @@ void App1::gui()
 	ImGui::DragFloat("Linear Attenuation", &extraLightParams.attLin, 0.01f, 0.f);
 	ImGui::DragFloat("Exponential Attenuation", &extraLightParams.attExp, 0.0001f, 0.f);
 
+	ImGui::ColorEdit4("Ambient Diffuse", extraLightParams.ambientDiffuse);
+	ImGui::ColorEdit4("Specular Diffuse", extraLightParams.specularDiffuse);
 	ImGui::ColorEdit4("Directional Diffuse", extraLightParams.directionalDiffuse);
 	ImGui::DragFloat3("Directional Direction", extraLightParams.directionalDirection, 0.1f);
 
