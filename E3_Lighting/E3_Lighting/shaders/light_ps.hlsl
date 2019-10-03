@@ -51,7 +51,7 @@ float4 calculateLightingDirectional(float3 lightDirection, float3 normal, float4
 // Calculate a point light
 float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
-	float4 colour = ambientColour; //Add ambient to colour
+	float4 colour = ambientColour; //Set colour ambient colour
 
 	//now calculate point light
 	float3 pxToLightVec = position.xyz - lightPosition; //get vector between pos and light
@@ -72,28 +72,30 @@ float4 calculateLightingPoint(float3 lightDirection, float3 normal, float4 diffu
 // Calculate a spot light
 float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffuse, float4 position)
 {
-	//float4 colour = ambientColour; //Add ambient to colour
+	float4 colour = ambientColour; //Set colour to ambient colour
+	
+	float halfAngle = cos(0.785f); //0.785 radians to cos which is 45 degrees
 
-	//float angle = cos(0.785f); //0.785 radians to cos which is 45 degrees
+	//now calculate point light
+	float3 pxToLightVec = position.xyz - lightPosition; //get vector between pos and light
+	float distance = length(pxToLightVec); //get the length between the two
+	pxToLightVec = normalize(pxToLightVec); //now make it unit after getting length
 
-	////now calculate the distance between the pixel and the spot light position
-	//float3 lightToPixelVec = lightPosition - position.xyz;
+	float normalIntensity = saturate(dot(normal, -pxToLightVec)); //calculate the angle between the normal at the surface and the negative normal between the light and px (as to have a valid angle comparison - otherwise you would have two normals that face away from eachother (see Erin's notes))
 
-	//float distance = length(lightToPixelVec); //to make lightToPixelVec a unit vector later
+	float cosOfAngleBetweenPxAndLight = dot(lightDirection, -pxToLightVec /* negative makes it from light to px */); //get angle between the two to see if the light is actually within the cone of light
 
-	//if (distance > pointLightRange) //if out of range
-	//	return colour;
+	if (cosOfAngleBetweenPxAndLight > halfAngle) //check if the normals 
+	{
+		float4 lightColour = saturate(normalIntensity * diffuse); //add the instensity
 
-	//lightToPixelVec /= distance; //make unit vector as to make calculating the angle possible
+		lightColour /= attenuationConstant + (attenuationLinear * distance) + (attenuationExponential * (distance * distance)); //divide the intensity at the pixel by the attenuation factor
 
-	//float cosAngleBetweenTwo = dot(lightDirection, lightToPixelVec); //calculate angle between the normal of the light and the normal of the vector between px and point
+		colour = saturate(lightColour + colour); //finally add the calculated light intensity at the pixel to the final colour and clamp between 0 and 1
+	}
 
-	////float normalIntensity = saturate(dot(normal, lightDirection)); //so the light respects the normals
+	return colour;
 
-	//if (cosAngleBetweenTwo > angle /*&& normalIntensity > 0.f*/) // light the pixel if the angle is correct and the normal is correctly aligned
-	//	return colour + (diffuseColour /** normalIntensity*/);
-	//	
-	//return colour; //otherwise dont light
 }
 
 
@@ -110,11 +112,13 @@ float4 main(InputType input) : SV_TARGET
 	float4 textureColour;
 	float4 lightColour = float4(0.f, 0.f, 0.f, 0.f);
 
+	////////////////////////NOTE THE NEGATIVE DIRECTION!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 	// Sample the texture. Calculate light intensity and colour, return light*texture for final pixel colour.
 	textureColour = texture0.Sample(sampler0, input.tex);
 	//lightColour += calculateLightingDirectional(-lightDirection, input.normal, diffuseColour);
-	lightColour += calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
-	//lightColour += calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	//lightColour += calculateLightingPoint(-lightDirection, input.normal, diffuseColour, input.worldPos);
+	lightColour += calculateLightingSpot(-lightDirection, input.normal, diffuseColour, input.worldPos);
 
 	lightColour *= textureColour;
 	lightColour += calculateSpecular(input.viewVector, input.normal);
