@@ -87,7 +87,7 @@ float4 main(InputType input) : SV_TARGET
 	//Add directional
 	lightColour += calculateLightingDirectional(-directnlLightDirection, input.normal, directnlLightDiffuse);
 
-	lightColour *= textureColour; //multiply texture color by lught color
+	lightColour *= textureColour; //multiply texture color by light color
 
 	//Return the light colour with the specular colour
 	return saturate(lightColour + calculateSpecular(input.viewVector, input.normal, -directnlLightDirection /*Inverted so it comes from the right side, ask erin about maths*/, specularDiffuse)); //direction needs to be inverted to make sure it comes from the right side
