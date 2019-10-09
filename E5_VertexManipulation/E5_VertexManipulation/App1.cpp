@@ -2,8 +2,6 @@
 // Lab 1 example, simple coloured triangle mesh
 #include "App1.h"
 
-#include "ExtraShaderParams.h"
-
 App1::App1()
 {
 	mesh = nullptr;
@@ -56,7 +54,7 @@ bool App1::frame()
 		return false;
 	}
 	
-	totalTime += timer->getTime();
+	extraShaderParams.time += timer->getTime();
 
 	// Render the graphics.
 	result = render();
@@ -83,9 +81,6 @@ bool App1::render()
 	viewMatrix = camera->getViewMatrix();
 	projectionMatrix = renderer->getProjectionMatrix();
 
-	ExtraShaderParams extraShaderParams;
-	extraShaderParams.time = totalTime;
-
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraShaderParams);
@@ -110,6 +105,13 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
+
+	ImGui::Text("Wave Controls");
+	ImGui::DragFloat("Sin Amplitude", &extraShaderParams.amplitudeSin, 0.05f);
+	ImGui::DragFloat("Cos Amplitude", &extraShaderParams.amplitudeCos, 0.05f);
+	ImGui::DragFloat("Sin Speed", &extraShaderParams.speedSin, 0.05f);
+	ImGui::DragFloat("Cos Speed", &extraShaderParams.speedCos, 0.05f);
+
 
 	// Render UI
 	ImGui::Render();

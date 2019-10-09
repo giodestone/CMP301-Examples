@@ -6,6 +6,8 @@
 #include "DXF.h"	// include dxframework
 #include "ManipulationShader.h"
 
+#include "ExtraShaderParams.h"
+
 class App1 : public BaseApplication
 {
 public:
@@ -25,7 +27,7 @@ private:
 	PlaneMesh* mesh;
 	Light* light;
 
-	float totalTime = 0.f;
+	ExtraShaderParams extraShaderParams;
 };
 
 #endif

@@ -20,6 +20,10 @@ private:
 	struct OtherDataBufferType
 	{
 		float time;
+		float amplitudeSin;
+		float amplitudeCos;
+		float speedSin;
+		float speedCos;
 		XMFLOAT3 padding;
 	};
 

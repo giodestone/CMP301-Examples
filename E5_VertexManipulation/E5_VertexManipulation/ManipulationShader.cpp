@@ -123,6 +123,10 @@ void ManipulationShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	result = deviceContext->Map(otherDataBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	otherDataBufferTypePtr = (OtherDataBufferType*)mappedResource.pData;
 	otherDataBufferTypePtr->time = extraShaderParams.time;
+	otherDataBufferTypePtr->amplitudeSin = extraShaderParams.amplitudeSin;
+	otherDataBufferTypePtr->amplitudeCos = extraShaderParams.amplitudeCos;
+	otherDataBufferTypePtr->speedSin = extraShaderParams.speedSin;
+	otherDataBufferTypePtr->speedCos = extraShaderParams.speedCos;
 	deviceContext->Unmap(otherDataBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &otherDataBuffer);
 

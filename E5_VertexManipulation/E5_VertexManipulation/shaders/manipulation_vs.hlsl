@@ -10,6 +10,10 @@ cbuffer MatrixBuffer : register(b0)
 cbuffer OtherDataBuffer : register(b1)
 {
 	float time;
+	float amplitudeSin;
+	float amplitudeCos;
+	float speedSin;
+	float speedCos;
 	float3 padding;
 };
 
@@ -28,41 +32,41 @@ struct OutputType
 };
 
 // 'wave' the vertex according to the time and position on the sine and cosine waves
-float4 waveVertex(in float4 inputPos, in float time)
+float4 waveVertex(in float4 inputPos, in float time, in float amplitudeSin, in float amplitudeCos, in float speedSin, in float speedCos)
 {
 	float4 outputPos = inputPos;
 
-	outputPos.y = sin(inputPos.x + time);
-	outputPos.y += cos(inputPos.z + time);
+	outputPos.y = sin(inputPos.x + time * speedSin) * amplitudeSin;
+	outputPos.y += cos(inputPos.z + time * speedCos) * amplitudeCos;
 
 	return outputPos;
 }
 
 // calculate normals based on the average of four verticies which were waved. If the vertices
 // do not exist, create a hypothetical one, one unit next to them.
-float3 calculateNormal(in float4 position, in float time)
+float3 calculateNormal(in float4 position, in float time, in float amplitudeSin, in float amplitudeCos, in float speedSin, in float speedCos)
 {
 	float4 northPos = position;
 	northPos.z += 1.f;
-	northPos = waveVertex(northPos, time);
+	northPos = waveVertex(northPos, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 	northPos -= position;
 	normalize(northPos);
 
 	float4 eastPos = position;
 	eastPos.x += 1.f;
-	eastPos = waveVertex(eastPos, time);
+	eastPos = waveVertex(eastPos, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 	eastPos -= position;
 	normalize(eastPos);
 
 	float4 southPos = position;
 	southPos.z -= 1.f;
-	southPos = waveVertex(southPos, time);
+	southPos = waveVertex(southPos, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 	southPos -= position;
 	normalize(southPos);
 
 	float4 westPos = position;
 	westPos.x -= 1.f;
-	westPos = waveVertex(westPos, time);
+	westPos = waveVertex(westPos, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 	westPos -= position;
 	normalize(westPos);
 
@@ -78,9 +82,9 @@ OutputType main(InputType input)
 {
 	OutputType output;
 
-	input.position = waveVertex(input.position, time);
+	input.position = waveVertex(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 
-	input.normal = calculateNormal(input.position, time);
+	input.normal = calculateNormal(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul(input.position, worldMatrix);
