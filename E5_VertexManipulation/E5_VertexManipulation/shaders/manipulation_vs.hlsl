@@ -31,6 +31,19 @@ struct OutputType
 	float3 normal : NORMAL;
 };
 
+float4 waveYNormal(in float4 inputPos, in float3 normal, in float time, in float amplitudeSin, in float amplitudeCos, in float speedSin, in float speedCos)
+{
+	float4 outputPos = inputPos;
+
+	float waveModifier = (sin((inputPos.x * normal.x) + time * speedSin) * amplitudeSin) + (cos((inputPos.z * normal.z) + time * speedCos) * amplitudeCos);
+	
+	//outputPos.x *= waveModifier * normal.x;
+	outputPos.xyz += waveModifier * normal;
+	//outputPos.z *= waveModifier * normal.z;
+
+	return outputPos;
+}
+
 // 'wave' the y of the vertex according to the time and position on the sine and cosine waves
 float4 waveY(in float4 inputPos, in float time, in float amplitudeSin, in float amplitudeCos, in float speedSin, in float speedCos)
 {
@@ -85,9 +98,9 @@ OutputType main(InputType input)
 {
 	OutputType output;
 
-	input.position = waveY(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
+	input.position = waveYNormal(input.position, input.normal, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 
-	input.normal = calculateNormal(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
+	//input.normal = calculateNormal(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul(input.position, worldMatrix);
