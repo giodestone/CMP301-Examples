@@ -45,6 +45,7 @@ void ManipulationShader::initShader(const wchar_t* vsFilename, const wchar_t* ps
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC otherDataBufferDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -58,6 +59,16 @@ void ManipulationShader::initShader(const wchar_t* vsFilename, const wchar_t* ps
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
+
+	// Other data buffer desc
+	otherDataBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	otherDataBufferDesc.ByteWidth = sizeof(OtherDataBufferType);
+	otherDataBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	otherDataBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	otherDataBufferDesc.MiscFlags = 0;
+	otherDataBufferDesc.StructureByteStride = 0;
+	renderer->CreateBuffer(&otherDataBufferDesc, NULL, &otherDataBuffer);
+
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -85,14 +96,13 @@ void ManipulationShader::initShader(const wchar_t* vsFilename, const wchar_t* ps
 }
 
 
-void ManipulationShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light)
+void ManipulationShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Light* light, ExtraShaderParams& extraShaderParams)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	
 	XMMATRIX tworld, tview, tproj;
-
 
 	// Transpose the matrices to prepare them for the shader.
 	tworld = XMMatrixTranspose(worldMatrix);
@@ -105,6 +115,17 @@ void ManipulationShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+
+
+	// Other data buffer desc for the vertex shader
+	OtherDataBufferType* otherDataBufferTypePtr = nullptr;
+
+	result = deviceContext->Map(otherDataBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	otherDataBufferTypePtr = (OtherDataBufferType*)mappedResource.pData;
+	otherDataBufferTypePtr->time = extraShaderParams.time;
+	deviceContext->Unmap(otherDataBuffer, 0);
+	deviceContext->VSSetConstantBuffers(1, 1, &otherDataBuffer);
+
 
 	//Additional
 	// Send light data to pixel shader

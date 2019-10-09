@@ -32,6 +32,9 @@
     <ClInclude Include="ManipulationShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExtraShaderParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\manipulation_ps.hlsl">

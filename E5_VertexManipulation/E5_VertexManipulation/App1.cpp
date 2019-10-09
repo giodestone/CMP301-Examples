@@ -2,6 +2,8 @@
 // Lab 1 example, simple coloured triangle mesh
 #include "App1.h"
 
+#include "ExtraShaderParams.h"
+
 App1::App1()
 {
 	mesh = nullptr;
@@ -21,7 +23,6 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light = new Light;
 	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	light->setDirection(0.7f, -0.7f, 0.0f);
-
 }
 
 
@@ -55,6 +56,8 @@ bool App1::frame()
 		return false;
 	}
 	
+	totalTime += timer->getTime();
+
 	// Render the graphics.
 	result = render();
 	if (!result)
@@ -80,9 +83,12 @@ bool App1::render()
 	viewMatrix = camera->getViewMatrix();
 	projectionMatrix = renderer->getProjectionMatrix();
 
+	ExtraShaderParams extraShaderParams;
+	extraShaderParams.time = totalTime;
+
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraShaderParams);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	// Render GUI

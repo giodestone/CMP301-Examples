@@ -6,7 +6,6 @@
 #include "DXF.h"	// include dxframework
 #include "ManipulationShader.h"
 
-
 class App1 : public BaseApplication
 {
 public:
@@ -25,6 +24,8 @@ private:
 	ManipulationShader* shader;
 	PlaneMesh* mesh;
 	Light* light;
+
+	float totalTime = 0.f;
 };
 
 #endif
