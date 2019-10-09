@@ -25,6 +25,8 @@ protected:
 private:
 	ManipulationShader* shader;
 	PlaneMesh* mesh;
+	CubeMesh* cubeMesh;
+	
 	Light* light;
 
 	ExtraShaderParams extraShaderParams;

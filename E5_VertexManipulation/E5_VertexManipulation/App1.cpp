@@ -17,6 +17,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	// Create Mesh object and shader object
 	mesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
+	cubeMesh = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
 	shader = new ManipulationShader(renderer->getDevice(), hwnd);
 	light = new Light;
 	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
@@ -40,6 +41,12 @@ App1::~App1()
 	{
 		delete shader;
 		shader = 0;
+	}
+
+	if (cubeMesh == nullptr)
+	{
+		delete cubeMesh;
+		cubeMesh = nullptr;
 	}
 }
 
@@ -85,6 +92,12 @@ bool App1::render()
 	mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraShaderParams);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	auto cubeMeshTransform = XMMatrixTranslation(2.f, 10.f, 2.f);
+
+	cubeMesh->sendData(renderer->getDeviceContext());
+	shader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(worldMatrix, cubeMeshTransform), viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, extraShaderParams);
+	shader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
 	// Render GUI
 	gui();
