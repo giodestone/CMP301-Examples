@@ -336,3 +336,5 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 E3_Lighting/Thumbs.db
+E5_VertexManipulation/E5_VertexManipulation/manipulation_vs.cso
+E5_VertexManipulation/E5_VertexManipulation/manipulation_ps.cso
