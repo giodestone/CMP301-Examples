@@ -45,31 +45,33 @@ float3 calculateNormal(in float4 position, in float time)
 	float4 northPos = position;
 	northPos.z += 1.f;
 	northPos = waveVertex(northPos, time);
-	northPos = normalize(northPos);
+	northPos -= position;
+	normalize(northPos);
 
 	float4 eastPos = position;
 	eastPos.x += 1.f;
 	eastPos = waveVertex(eastPos, time);
-	eastPos = normalize(eastPos);
+	eastPos -= position;
+	normalize(eastPos);
 
 	float4 southPos = position;
 	southPos.z -= 1.f;
 	southPos = waveVertex(southPos, time);
-	southPos = normalize(southPos);
+	southPos -= position;
+	normalize(southPos);
 
 	float4 westPos = position;
 	westPos.x -= 1.f;
 	westPos = waveVertex(westPos, time);
-	westPos = normalize(westPos);
+	westPos -= position;
+	normalize(westPos);
 
 	float3 NorthCrossEastNormal = normalize(cross(northPos.xyz, eastPos.xyz));
 	float3 EastCrossSouthNormal = normalize(cross(eastPos.xyz, southPos.xyz));
 	float3 SouthCrossWestNormal = normalize(cross(southPos.xyz, westPos.xyz));
 	float3 WestCrossNorthNormal = normalize(cross(westPos.xyz, northPos.xyz));
 
-	return (NorthCrossEastNormal + EastCrossSouthNormal + SouthCrossWestNormal + WestCrossNorthNormal) / 4.f;
-	//float3 
-
+	return normalize((NorthCrossEastNormal + EastCrossSouthNormal + SouthCrossWestNormal + WestCrossNorthNormal) / 4.f);
 }
 
 OutputType main(InputType input)
@@ -79,8 +81,6 @@ OutputType main(InputType input)
 	input.position = waveVertex(input.position, time);
 
 	input.normal = calculateNormal(input.position, time);
-	//input.normal.x = 1 - cos(input.position.x + time);
-	//input.normal.y = abs(cos(input.position.x + time));
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul(input.position, worldMatrix);
