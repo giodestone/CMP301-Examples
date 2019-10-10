@@ -77,10 +77,13 @@ float4 calculateLightingSpot(float3 lightDirection, float3 normal, float4 diffus
 	float halfAngle = cos(0.785f); //0.785 radians to cos which is 45 degrees
 
 	//now calculate point light
+
+	//its light to pixel vector (note this)
 	float3 pxToLightVec = position.xyz - lightPosition; //get vector between pos and light
 	float distance = length(pxToLightVec); //get the length between the two
 	pxToLightVec = normalize(pxToLightVec); //now make it unit after getting length
 
+	//with the negative it beings light to pixel vector
 	float normalIntensity = saturate(dot(normal, -pxToLightVec)); //calculate the angle between the normal at the surface and the negative normal between the light and px (as to have a valid angle comparison - otherwise you would have two normals that face away from eachother (see Erin's notes))
 
 	float cosOfAngleBetweenPxAndLight = dot(lightDirection, -pxToLightVec /* negative makes it from light to px */); //get angle between the two to see if the light is actually within the cone of light
