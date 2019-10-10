@@ -46,6 +46,7 @@ void ManipulationShader::initShader(const wchar_t* vsFilename, const wchar_t* ps
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 	D3D11_BUFFER_DESC otherDataBufferDesc;
+	D3D11_SAMPLER_DESC heightMapSamplerDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -68,6 +69,19 @@ void ManipulationShader::initShader(const wchar_t* vsFilename, const wchar_t* ps
 	otherDataBufferDesc.MiscFlags = 0;
 	otherDataBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&otherDataBufferDesc, NULL, &otherDataBuffer);
+
+	// Height map sampler
+	heightMapSamplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	heightMapSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	heightMapSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	heightMapSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	heightMapSamplerDesc.MipLODBias = 0.0f;
+	heightMapSamplerDesc.MaxAnisotropy = 1;
+	heightMapSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	heightMapSamplerDesc.MinLOD = 0;
+	heightMapSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	renderer->CreateSamplerState(&heightMapSamplerDesc, &heightMapSamplerState);
+
 
 
 	// Create a texture sampler state description.
@@ -130,6 +144,10 @@ void ManipulationShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->Unmap(otherDataBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &otherDataBuffer);
 
+	//send heightmap and sampler to the vertex shader
+	deviceContext->VSSetShaderResources(0, 1, &extraShaderParams.heightmap);
+	deviceContext->VSSetSamplers(0, 1, &heightMapSamplerState);
+
 
 	//Additional
 	// Send light data to pixel shader
@@ -143,6 +161,6 @@ void ManipulationShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(0, 1, &extraShaderParams.heightmap);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }

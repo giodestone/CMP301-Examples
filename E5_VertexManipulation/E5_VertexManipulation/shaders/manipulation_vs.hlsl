@@ -1,5 +1,8 @@
 // Light vertex shader
 // Standard issue vertex shader, apply matrices, pass info to pixel shader
+Texture2D texture0 : register(t0);
+SamplerState sampler0 : register(s0);
+
 cbuffer MatrixBuffer : register(b0)
 {
 	matrix worldMatrix;
@@ -31,15 +34,22 @@ struct OutputType
 	float3 normal : NORMAL;
 };
 
+// Get the y position from the texture for the vertex, and amplify by amplitude
+float4 getYPosFromTexture(in float4 color, in float4 position, in float3 normal, in float amplitude)
+{
+	float4 outPos = position;
+	outPos.xyz += (normal * color.x * amplitude);
+	return outPos;
+}
+
 float4 waveYNormal(in float4 inputPos, in float3 normal, in float time, in float amplitudeSin, in float amplitudeCos, in float speedSin, in float speedCos)
 {
+	//////TODO: MAYBE CONSIDER THIS BUT WITH A SHPHERE BECAUSE YOU CNA CALCULATE NORMALS USING ITS EQUATION (dont worry about he correct normal)
 	float4 outputPos = inputPos;
 
-	float waveModifier = (sin((inputPos.x * normal.x) + time * speedSin) * amplitudeSin) + (cos((inputPos.z * normal.z) + time * speedCos) * amplitudeCos);
+	float waveModifier = (sin((inputPos.x) + time * speedSin) * amplitudeSin) + (cos((inputPos.z) + time * speedCos) * amplitudeCos);
 	
-	//outputPos.x *= waveModifier * normal.x;
 	outputPos.xyz += waveModifier * normal;
-	//outputPos.z *= waveModifier * normal.z;
 
 	return outputPos;
 }
@@ -57,6 +67,7 @@ float4 waveY(in float4 inputPos, in float time, in float amplitudeSin, in float 
 
 // calculate normals based on the average of four verticies which were waved. If the vertices
 // do not exist, create a hypothetical one, one unit next to them.
+// Only works for planes which go in the xz axis and have their normal in +y
 float3 calculateNormal(in float4 position, in float time, in float amplitudeSin, in float amplitudeCos, in float speedSin, in float speedCos)
 {
 	//get positions 1u from N, E, S, W and wave them
@@ -98,9 +109,16 @@ OutputType main(InputType input)
 {
 	OutputType output;
 
-	input.position = waveYNormal(input.position, input.normal, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
+	/*Waviness*/
+
+	////input.position = waveYNormal(input.position, input.normal, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
+	//input.position = waveY(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
 
 	//input.normal = calculateNormal(input.position, time, amplitudeSin, amplitudeCos, speedSin, speedCos);
+
+	/*Heightmap*/
+
+	input.position = getYPosFromTexture(texture0.SampleLevel(sampler0, input.tex, 0), input.position, input.normal, amplitudeSin);
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul(input.position, worldMatrix);
