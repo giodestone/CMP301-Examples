@@ -39,7 +39,7 @@ void Camera::setRotation(float lx, float ly, float lz)
 {
 	rotation.x = lx;
 	rotation.y = ly;
-	rotation.x = lz;
+	rotation.z = lz;
 }
 
 XMFLOAT3 Camera::getPosition()
