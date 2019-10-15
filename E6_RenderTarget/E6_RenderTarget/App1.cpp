@@ -75,7 +75,7 @@ void App1::firstPass()
 {
 	// Set the render target to be the render to texture and clear it
 	renderTexture->setRenderTarget(renderer->getDeviceContext());
-	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);
+	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 0.0f, 0.0f, 1.0f);
 
 	// Get matrices
 	camera->update();
