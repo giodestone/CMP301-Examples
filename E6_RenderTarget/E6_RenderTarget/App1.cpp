@@ -78,6 +78,13 @@ void App1::firstPass()
 	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 1.0f, 0.0f, 0.0f, 1.0f);
 
 	// Get matrices
+
+	//set camera to position - could add second camera but would need to fix movement
+	auto originalCameraPos = camera->getPosition();
+	auto originalCameraRotation = camera->getRotation();
+	camera->setPosition(-0.f, 5.f, -0.f);
+	camera->setRotation(90.f, 0.f, 0.f); //look down
+
 	camera->update();
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
@@ -87,6 +94,10 @@ void App1::firstPass()
 	cubeMesh->sendData(renderer->getDeviceContext());
 	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
 	lightShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
+
+	//reset camera to old position and rotation.
+	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);
+	camera->setRotation(originalCameraRotation.x, originalCameraRotation.y, originalCameraRotation.z);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	renderer->setBackBufferRenderTarget();
