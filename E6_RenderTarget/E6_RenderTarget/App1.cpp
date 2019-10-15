@@ -16,7 +16,11 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	
 	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
 	cubeMesh = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
+	sphereMesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	planeMesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
+
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, -screenWidth / 2.7, screenHeight / 2.7);
+	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, -screenWidth / 2.7, screenHeight / 2.7);
 
 	lightShader = new LightShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
@@ -26,7 +30,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light = new Light;
 	light->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
 	light->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	light->setDirection(0.7f, 0.0f, 0.7f);
+	light->setDirection(0.f, -0.7f, 0.7f);
 }
 
 
@@ -65,6 +69,9 @@ bool App1::render()
 	// Render first pass to render texture
 	firstPass();
 
+	//render plane to texture
+	secondPass();
+
 	// Render final pass to frame buffer
 	finalPass();
 
@@ -79,11 +86,11 @@ void App1::firstPass()
 
 	// Get matrices
 
-	//set camera to position - could add second camera but would need to fix movement
+	//set camera to position - could add second camera but would need to fix
 	auto originalCameraPos = camera->getPosition();
 	auto originalCameraRotation = camera->getRotation();
-	camera->setPosition(-0.f, 5.f, -0.f);
-	camera->setRotation(90.f, 0.f, 0.f); //look down
+	camera->setPosition(-2.f, 0.f, -2.f);
+	camera->setRotation(0.f, 20.f, 0.f); //look slightly right
 
 	camera->update();
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
@@ -91,15 +98,45 @@ void App1::firstPass()
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
 	// Render shape with simple lighting shader set.
-	cubeMesh->sendData(renderer->getDeviceContext());
+	sphereMesh->sendData(renderer->getDeviceContext());
 	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
-	lightShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
+	lightShader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
 
 	//reset camera to old position and rotation.
 	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);
 	camera->setRotation(originalCameraRotation.x, originalCameraRotation.y, originalCameraRotation.z);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	renderer->setBackBufferRenderTarget();
+}
+
+void App1::secondPass()
+{
+	renderTexture2->setRenderTarget(renderer->getDeviceContext());
+	renderTexture2->clearRenderTarget(renderer->getDeviceContext(), 0.f, 1.f, 0.f, 1.f);
+
+	//set the camera position
+	auto originalCameraPos = camera->getPosition();
+	auto originalCameraRotation = camera->getRotation();
+	camera->setPosition(-0.f, 5.f, -0.f);
+	camera->setRotation(90.f, 0.f, 0.f); //look down
+	
+	//get the camera matrices
+	camera->update();
+	XMMATRIX worldMatrix = renderer->getWorldMatrix();
+	XMMATRIX viewMatrix = camera->getViewMatrix();
+	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
+
+	//render the plane with default texture
+	planeMesh->sendData(renderer->getDeviceContext());
+	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
+	lightShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
+
+	// reset the camera pos
+	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);
+	camera->setRotation(originalCameraRotation.x, originalCameraRotation.y, originalCameraRotation.z);
+
+	// reset the render target back to the original one
 	renderer->setBackBufferRenderTarget();
 }
 
@@ -129,8 +166,16 @@ void App1::finalPass()
 	orthoMesh->sendData(renderer->getDeviceContext());
 	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, renderTexture->getShaderResourceView());
 	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
-	renderer->setZBuffer(true);
 
+	// render the second texture scene
+	orthoMesh2->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, renderTexture2->getShaderResourceView());
+	textureShader->render(renderer)
+
+
+	// enable z buffer
+	renderer->setZBuffer(true);
+	
 	// Render GUI
 	gui();
 

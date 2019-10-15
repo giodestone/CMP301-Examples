@@ -20,16 +20,23 @@ public:
 protected:
 	bool render();
 	void firstPass();
+	void secondPass();
 	void finalPass();
 	void gui();
 
 private:
 	CubeMesh* cubeMesh;
+	SphereMesh* sphereMesh;
+	PlaneMesh* planeMesh;
+
 	OrthoMesh* orthoMesh;
+	OrthoMesh* orthoMesh2; //both ortho meshes are for the render textures
+
 	LightShader* lightShader;
 	TextureShader* textureShader;
 
-	RenderTexture* renderTexture;
+	RenderTexture* renderTexture; //for the sphere
+	RenderTexture* renderTexture2; //for the plane
 
 	Light* light;
 };
