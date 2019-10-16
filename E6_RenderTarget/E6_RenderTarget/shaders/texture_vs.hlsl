@@ -8,6 +8,15 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 };
 
+cbuffer PlayerPosBuffer : register(b1)
+{
+	float4 playerPos;
+
+	matrix worldAtTopDown;
+	matrix viewAtTopDown;
+	matrix projectionAtTopDown;
+}
+
 struct InputType
 {
 	float4 position : POSITION;
@@ -20,6 +29,7 @@ struct OutputType
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+	float4 playerScreenPos : TEXCOORD1;
 };
 
 OutputType main(InputType input)
@@ -35,6 +45,23 @@ OutputType main(InputType input)
 	output.tex = input.tex;
 
     output.normal = input.normal;
+
+	//output.playerScreenPos = float4(200.f, 200.f, 200.f, 1.f);
+
+	///////////////////////////////////////////////////////////////////TODO FIX: ISSUE ISD SOMETHING TO DO WITH THESE MATRICES AND PROBABLY HOW A CIRLCE IS DRAWN IN TEXTURE_PS,.HLSL
+	// IF YOU GO FOWARD YOU WILL SEE A PINK DOT THAT MOVES WITH THE CAMERA BUT NOT HOW WANTED. IT COULD BE IN HOW THE CIRLCE IS DRAWN...............,.,.,.,
+
+	//multiply the player by matrices to get them into screen space
+	output.playerScreenPos = mul(playerPos, worldAtTopDown);
+	output.playerScreenPos = mul(output.playerScreenPos, viewAtTopDown);
+	output.playerScreenPos = mul(output.playerScreenPos, projectionAtTopDown);
+
+	//output.playerScreenPos.xyz /= output.playerScreenPos.w;
+	output.playerScreenPos.xy *= float2(0.5f, -0.5f);
+	output.playerScreenPos.xy += 0.5f;
+	
+	output.playerScreenPos.x *= 1200.f / 4.f;
+	output.playerScreenPos.y *= 675.f / 4.f;
 
 	return output;
 }

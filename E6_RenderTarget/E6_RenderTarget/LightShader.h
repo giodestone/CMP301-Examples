@@ -2,6 +2,8 @@
 
 #include "DXF.h"
 
+#include "ExtraShaderParams.h"
+
 using namespace std;
 using namespace DirectX;
 
@@ -14,6 +16,8 @@ private:
 		XMFLOAT3 direction;
 		float padding;
 	};
+
+
 
 public:
 	LightShader(ID3D11Device* device, HWND hwnd);

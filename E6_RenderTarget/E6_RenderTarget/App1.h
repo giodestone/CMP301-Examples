@@ -40,6 +40,8 @@ private:
 	RenderTexture* renderTexture; //for the sphere
 	RenderTexture* renderTexture2; //for the plane
 
+	ExtraShaderParams extraShaderParams;
+
 	Light* light;
 };
 

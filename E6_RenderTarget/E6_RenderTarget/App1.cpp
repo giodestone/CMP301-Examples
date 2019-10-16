@@ -130,17 +130,23 @@ void App1::secondPass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
-	//position sphere 
-	posSphere->sendData(renderer->getDeviceContext());
-	XMMATRIX posMatrix = XMMatrixTranslation(originalCameraPos.x, 4.5f, originalCameraPos.z);
-	XMMATRIX scaleMatrix = XMMatrixScaling(0.01f, 0.01f, 0.1f);
-	lightShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixMultiply(worldMatrix, scaleMatrix), posMatrix), viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
-	lightShader->render(renderer->getDeviceContext(), posSphere->getIndexCount());
+	extraShaderParams.worldAtTopDown = worldMatrix;
+	extraShaderParams.viewAtTopDown = viewMatrix;
+	extraShaderParams.projectionAtTopDown = projectionMatrix;
 
 	//render the cube with default texture
 	cubeMesh->sendData(renderer->getDeviceContext());
 	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
 	lightShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
+
+	////render the position sphere as the last thing and disable z buffer so it draws on top
+	//renderer->setZBuffer(false);
+	//posSphere->sendData(renderer->getDeviceContext());
+	//XMMATRIX posMatrix = XMMatrixTranslation(originalCameraPos.x, 0.f, originalCameraPos.z);
+	//XMMATRIX scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+	//lightShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixMultiply(worldMatrix, scaleMatrix), posMatrix), viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light, extraShaderParams);
+	//lightShader->render(renderer->getDeviceContext(), posSphere->getIndexCount());
+	//renderer->setZBuffer(true);
 
 	// reset the camera pos
 	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);
@@ -166,7 +172,6 @@ void App1::finalPass()
 	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light);
 	lightShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
-
 	// RENDER THE RENDER TEXTURE SCENE
 	// Requires 2D rendering and an ortho mesh.
 	renderer->setZBuffer(false);
@@ -174,13 +179,18 @@ void App1::finalPass()
 	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 
 	orthoMesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, renderTexture->getShaderResourceView());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, renderTexture->getShaderResourceView(), extraShaderParams);
 	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+
+	extraShaderParams.drawPlayer = true;
+	extraShaderParams.playerPos = camera->getPosition();
+	extraShaderParams.playerPos.y = 0.f;
 
 	// render the second texture scene
 	orthoMesh2->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, renderTexture2->getShaderResourceView());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, renderTexture2->getShaderResourceView(), extraShaderParams);
 	textureShader->render(renderer->getDeviceContext(), orthoMesh2->getIndexCount());
+	extraShaderParams.drawPlayer = false;
 
 	// enable z buffer
 	renderer->setZBuffer(true);

@@ -43,6 +43,7 @@ LightShader::~LightShader()
 void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 
@@ -82,6 +83,8 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	lightBufferDesc.StructureByteStride = 0;
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
+
+
 }
 
 
@@ -116,6 +119,8 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr->padding = 0.0f;
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
+
+	
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
