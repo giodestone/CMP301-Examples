@@ -19,6 +19,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	sphereMesh = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	planeMesh = new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext());
 
+	posSphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 2.7, screenHeight / 2.7);
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, -screenWidth / 2.7, screenHeight / 2.7);
 
@@ -70,7 +72,7 @@ bool App1::render()
 	// Render first pass to render texture
 	firstPass();
 
-	//render plane to texture
+	//render minimap
 	secondPass();
 
 	// Render final pass to frame buffer
@@ -90,7 +92,7 @@ void App1::firstPass()
 	//set camera to position - could add second camera but would need to fix
 	auto originalCameraPos = camera->getPosition();
 	auto originalCameraRotation = camera->getRotation();
-	camera->setPosition(-2.f, 0.f, -2.f);
+	camera->setPosition(-1.f, 0.f, -2.f);
 	camera->setRotation(0.f, 20.f, 0.f); //look slightly right
 
 	camera->update();
@@ -119,7 +121,7 @@ void App1::secondPass()
 	//set the camera position
 	auto originalCameraPos = camera->getPosition();
 	auto originalCameraRotation = camera->getRotation();
-	camera->setPosition(-0.f, 5.f, -0.f);
+	camera->setPosition(0.f, 5.f, 0.f);
 	camera->setRotation(90.f, 0.f, 0.f); //look down
 	
 	//get the camera matrices
@@ -128,10 +130,17 @@ void App1::secondPass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
-	//render the plane with default texture
-	planeMesh->sendData(renderer->getDeviceContext());
+	//position sphere 
+	posSphere->sendData(renderer->getDeviceContext());
+	XMMATRIX posMatrix = XMMatrixTranslation(originalCameraPos.x, 4.5f, originalCameraPos.z);
+	XMMATRIX scaleMatrix = XMMatrixScaling(0.01f, 0.01f, 0.1f);
+	lightShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixMultiply(worldMatrix, scaleMatrix), posMatrix), viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
+	lightShader->render(renderer->getDeviceContext(), posSphere->getIndexCount());
+
+	//render the cube with default texture
+	cubeMesh->sendData(renderer->getDeviceContext());
 	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
-	lightShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
+	lightShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
 	// reset the camera pos
 	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);

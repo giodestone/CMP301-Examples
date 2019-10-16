@@ -29,6 +29,8 @@ private:
 	SphereMesh* sphereMesh;
 	PlaneMesh* planeMesh;
 
+	SphereMesh* posSphere;
+
 	OrthoMesh* orthoMesh;
 	OrthoMesh* orthoMesh2; //both ortho meshes are for the render textures
 
