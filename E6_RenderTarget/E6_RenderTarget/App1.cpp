@@ -33,6 +33,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	renderTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	renderTexture2 = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	minimapCircleRenderTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
 	light = new Light;
 	light->setAmbientColour(0.0f, 0.0f, 0.0f, 1.0f);
@@ -76,8 +77,11 @@ bool App1::render()
 	// Render first pass to render texture
 	firstPass();
 
-	//render minimap
+	//render scene from top down
 	secondPass();
+
+	//render the circle on top down
+	minimapCirclePass();
 
 	// Render final pass to frame buffer
 	finalPass();
@@ -157,9 +161,7 @@ void App1::secondPass()
 
 	//renderer->getDeviceContext()->VSSetShader(NULL, NULL, NULL);
 	//render the dot at the camera pos
-	orthoMesh->sendData(renderer->getDeviceContext());
-	positionShader.get()->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, renderTexture2->getShaderResourceView(), extraShaderParams);
-	positionShader.get()->render(renderer->getDeviceContext(), 0);
+
 
 	// reset the camera pos
 	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);
@@ -229,5 +231,17 @@ void App1::gui()
 	// Render UI
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void App1::minimapCirclePass()
+{
+	minimapCircleRenderTexture->setRenderTarget(renderer->getDeviceContext());
+	minimapCircleRenderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.f, 0.f, 1.f, 1.f);
+
+	orthoMesh->sendData(renderer->getDeviceContext());
+	positionShader.get()->setShaderParameters(renderer->getDeviceContext(), renderer->getWorldMatrix(), camera->getOrthoViewMatrix(), renderer->getOrthoMatrix(), renderTexture2->getShaderResourceView(), extraShaderParams);
+	positionShader.get()->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+
+	renderer->setBackBufferRenderTarget();
 }
 

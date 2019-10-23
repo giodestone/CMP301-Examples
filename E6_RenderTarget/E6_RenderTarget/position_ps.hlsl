@@ -20,7 +20,7 @@ struct InputType
 };
 
 // place a dot where the player is... probably not the best place and should've made this into another shader, maybe?
-float4 shadePlayerPos(in float4 position, in float2 playerPos, in float4 color, in float4 noColor, in float radius)
+float4 shadePlayerPos(in float4 position, in float2 playerPos, in float4 color, in float radius)
 {
 	float dx = position.x /*- (radius * 2.f)*/;
 	float dy = position.y /*- (radius * 2.f)*/;
@@ -51,11 +51,10 @@ float4 main(InputType input) : SV_TARGET
 	bool x = fmod(input.position.x, playerPosFloat4.x) > 20.f;
 	bool y = fmod(input.position.y, playerPosFloat4.y) > 20.f;
 
-	//NOW DRAW A CIRCLE
-	//if (playerPosFloat4.x == input.position.x && playerPosFloat4.y == input.position.y)
-	if (x || y)
-		return float4(1.f, 1.f, 1.f, 1.f);
 
+	//NOW DRAW A CIRCLE
+	float4 textureColor = texture0.Sample(Sampler0, input.tex);
+	return shadePlayerPos(input.position - (playerPosFloat4), float4(0.f, 0.f, 0.f, 0.f), float4(1.f, 0.f, 1.f, 1.f), 5.f) + textureColor;
 
 	return float4(0.f,0.f,0.f,1.f);
 }

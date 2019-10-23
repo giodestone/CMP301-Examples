@@ -27,6 +27,7 @@ protected:
 	void finalPass();
 	void gui();
 
+	void minimapCirclePass();
 private:
 	CubeMesh* cubeMesh;
 	SphereMesh* sphereMesh;
@@ -43,6 +44,7 @@ private:
 
 	RenderTexture* renderTexture; //for the sphere
 	RenderTexture* renderTexture2; //for the plane
+	RenderTexture* minimapCircleRenderTexture;
 
 	ExtraShaderParams extraShaderParams;
 
