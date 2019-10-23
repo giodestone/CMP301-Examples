@@ -15,6 +15,9 @@ cbuffer PlayerPosBuffer : register(b1)
 	matrix worldAtTopDown;
 	matrix viewAtTopDown;
 	matrix projectionAtTopDown;
+
+	matrix orthoViewMatrix;
+	matrix orthoMatrix;
 }
 
 struct InputType
@@ -53,15 +56,16 @@ OutputType main(InputType input)
 
 	//multiply the player by matrices to get them into screen space
 	output.playerScreenPos = mul(playerPos, worldAtTopDown);
-	output.playerScreenPos = mul(output.playerScreenPos, viewAtTopDown);
-	output.playerScreenPos = mul(output.playerScreenPos, projectionAtTopDown);
+	output.playerScreenPos = mul(output.playerScreenPos, orthoViewMatrix);
+	output.playerScreenPos = mul(output.playerScreenPos, orthoMatrix);
 
-	//output.playerScreenPos.xyz /= output.playerScreenPos.w;
+	output.playerScreenPos.xyz /= output.playerScreenPos.w;
+	output.playerScreenPos.y = output.playerScreenPos.z;
 	output.playerScreenPos.xy *= float2(0.5f, -0.5f);
 	output.playerScreenPos.xy += 0.5f;
 	
-	output.playerScreenPos.x *= 1200.f / 4.f;
-	output.playerScreenPos.y *= 675.f / 4.f;
+	output.playerScreenPos.x *= 1200.f /*/ 4.f*/;
+	output.playerScreenPos.y *= 675.f /*/ 4.f*/;
 
 	return output;
 }

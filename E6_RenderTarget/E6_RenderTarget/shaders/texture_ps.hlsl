@@ -50,5 +50,5 @@ float4 main(InputType input) : SV_TARGET
 
 	//textureColor = averageColor(textureColor);
 
-	return shadePlayerPos(input.position - (input.playerScreenPos / 2.f), float4(0.f, 0.f, 0.f, 0.f), float4(1.f, 0.f, 1.f, 1.f), 200.f) + textureColor;
+	return shadePlayerPos(input.position - (input.playerScreenPos), float4(0.f, 0.f, 0.f, 0.f), float4(1.f, 0.f, 1.f, 1.f), 200.f) + textureColor;
 }

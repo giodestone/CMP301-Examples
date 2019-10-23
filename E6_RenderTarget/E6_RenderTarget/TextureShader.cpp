@@ -125,6 +125,9 @@ void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	playerPosBufferPtr->viewAtTopDown = extraShaderParams.viewAtTopDown;
 	playerPosBufferPtr->worldAtTopDown = extraShaderParams.worldAtTopDown;
 
+	playerPosBufferPtr->orthoMatrix = extraShaderParams.orthoMatrix;
+	playerPosBufferPtr->orthoViewMatrix = extraShaderParams.orthoViewMatrix;
+
 	deviceContext->Unmap(playerPosBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &playerPosBuffer);
 

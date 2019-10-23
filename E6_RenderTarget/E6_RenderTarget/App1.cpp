@@ -21,7 +21,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	posSphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 
-	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 2.7, screenHeight / 2.7);
+	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight);
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, -screenWidth / 2.7, screenHeight / 2.7);
 
 	lightShader = new LightShader(renderer->getDevice(), hwnd);
@@ -133,20 +133,23 @@ void App1::secondPass()
 	extraShaderParams.worldAtTopDown = worldMatrix;
 	extraShaderParams.viewAtTopDown = viewMatrix;
 	extraShaderParams.projectionAtTopDown = projectionMatrix;
+	//for projecting the circle
+	extraShaderParams.orthoViewMatrix = camera->getOrthoViewMatrix();
+	extraShaderParams.orthoMatrix = renderer->getOrthoMatrix();
 
 	//render the cube with default texture
 	cubeMesh->sendData(renderer->getDeviceContext());
 	lightShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
 	lightShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
-	////render the position sphere as the last thing and disable z buffer so it draws on top
-	//renderer->setZBuffer(false);
-	//posSphere->sendData(renderer->getDeviceContext());
-	//XMMATRIX posMatrix = XMMatrixTranslation(originalCameraPos.x, 0.f, originalCameraPos.z);
-	//XMMATRIX scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
-	//lightShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixMultiply(worldMatrix, scaleMatrix), posMatrix), viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light, extraShaderParams);
-	//lightShader->render(renderer->getDeviceContext(), posSphere->getIndexCount());
-	//renderer->setZBuffer(true);
+	//render the position sphere as the last thing and disable z buffer so it draws on top
+	renderer->setZBuffer(false);
+	posSphere->sendData(renderer->getDeviceContext());
+	XMMATRIX posMatrix = XMMatrixTranslation(originalCameraPos.x, 0.f, originalCameraPos.z);
+	XMMATRIX scaleMatrix = XMMatrixScaling(0.1f, 0.1f, 0.1f);
+	lightShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixMultiply(worldMatrix, scaleMatrix), posMatrix), viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
+	lightShader->render(renderer->getDeviceContext(), posSphere->getIndexCount());
+	renderer->setZBuffer(true);
 
 	// reset the camera pos
 	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);

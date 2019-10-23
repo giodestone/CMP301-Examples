@@ -12,4 +12,7 @@ struct ExtraShaderParams
 	XMMATRIX worldAtTopDown;
 	XMMATRIX viewAtTopDown;
 	XMMATRIX projectionAtTopDown;
+
+	XMMATRIX orthoViewMatrix;
+	XMMATRIX orthoMatrix;
 };

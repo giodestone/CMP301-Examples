@@ -24,6 +24,9 @@ class TextureShader : public BaseShader
 		XMMATRIX worldAtTopDown;
 		XMMATRIX viewAtTopDown;
 		XMMATRIX projectionAtTopDown;
+
+		XMMATRIX orthoViewMatrix;
+		XMMATRIX orthoMatrix;
 	};
 
 public:
