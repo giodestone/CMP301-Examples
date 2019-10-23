@@ -21,7 +21,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	posSphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 
-	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight);
+	///TODO: THE RENDER TEXTURE HAS TO BE MAX SIZE TO BE ABLE TO MATCH THE COORDINATES 1:1 WITH SCREEN SPACE, IT HAS TO BE SCALED DOWN LATER -- PROBABLY SHOULD NOT RENDER THE FULL SIZED ONE, JUST THE SMALL ONE WITH A DIFFERENT TEXTURE!
+	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 2.7, screenHeight / 2.7); //TODO GET RID OF X,Y POS (DEFAULT TO 0) AND SET WIDTH HEIGHT TO SCREEN SIZE
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, -screenWidth / 2.7, screenHeight / 2.7);
 
 	lightShader = new LightShader(renderer->getDevice(), hwnd);
@@ -70,7 +71,7 @@ bool App1::frame()
 bool App1::render()
 {
 	// Render first pass to render texture
-	firstPass();
+	//firstPass();
 
 	//render minimap
 	secondPass();

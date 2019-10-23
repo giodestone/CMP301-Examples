@@ -9,26 +9,6 @@ using namespace DirectX;
 
 class TextureShader : public BaseShader
 {
-	struct DotBufferType
-	{
-		XMFLOAT4 dotColor;
-		float radius;
-		bool shouldDrawDot;
-		XMFLOAT2 padding;
-	};
-
-	struct PlayerPosBufferType
-	{
-		XMFLOAT4 playerPos;
-
-		XMMATRIX worldAtTopDown;
-		XMMATRIX viewAtTopDown;
-		XMMATRIX projectionAtTopDown;
-
-		XMMATRIX orthoViewMatrix;
-		XMMATRIX orthoMatrix;
-	};
-
 public:
 	TextureShader(ID3D11Device* device, HWND hwnd);
 	~TextureShader();

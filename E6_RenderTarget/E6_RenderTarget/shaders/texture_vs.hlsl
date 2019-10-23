@@ -8,18 +8,6 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 };
 
-cbuffer PlayerPosBuffer : register(b1)
-{
-	float4 playerPos;
-
-	matrix worldAtTopDown;
-	matrix viewAtTopDown;
-	matrix projectionAtTopDown;
-
-	matrix orthoViewMatrix;
-	matrix orthoMatrix;
-}
-
 struct InputType
 {
 	float4 position : POSITION;
@@ -55,17 +43,17 @@ OutputType main(InputType input)
 	// IF YOU GO FOWARD YOU WILL SEE A PINK DOT THAT MOVES WITH THE CAMERA BUT NOT HOW WANTED. IT COULD BE IN HOW THE CIRLCE IS DRAWN...............,.,.,.,
 
 	//multiply the player by matrices to get them into screen space
-	output.playerScreenPos = mul(playerPos, worldAtTopDown);
-	output.playerScreenPos = mul(output.playerScreenPos, orthoViewMatrix);
-	output.playerScreenPos = mul(output.playerScreenPos, orthoMatrix);
+	//output.playerScreenPos = mul(playerPos, worldAtTopDown);
+	//output.playerScreenPos = mul(output.playerScreenPos, orthoViewMatrix);
+	//output.playerScreenPos = mul(output.playerScreenPos, orthoMatrix);
 
-	output.playerScreenPos.xyz /= output.playerScreenPos.w;
-	output.playerScreenPos.y = output.playerScreenPos.z;
-	output.playerScreenPos.xy *= float2(0.5f, -0.5f);
-	output.playerScreenPos.xy += 0.5f;
-	
-	output.playerScreenPos.x *= 1200.f /*/ 4.f*/;
-	output.playerScreenPos.y *= 675.f /*/ 4.f*/;
+	//output.playerScreenPos.xyz /= output.playerScreenPos.w;
+	//output.playerScreenPos.y = output.playerScreenPos.z;
+	//output.playerScreenPos.xy *= float2(0.5f, -0.5f);
+	//output.playerScreenPos.xy += 0.5f;
+	//
+	//output.playerScreenPos.x *= 1200.f /*/ 4.f*/;
+	//output.playerScreenPos.y *= 675.f /*/ 4.f*/;
 
 	return output;
 }

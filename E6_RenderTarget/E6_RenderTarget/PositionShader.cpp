@@ -1,42 +1,11 @@
-#include "TextureShader.h"
+#include "PositionShader.h"
 
-
-
-TextureShader::TextureShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+PositionShader::PositionShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	initShader(L"texture_vs.cso", L"texture_ps.cso");
 }
 
-
-TextureShader::~TextureShader()
-{
-	// Release the sampler state.
-	if (sampleState)
-	{
-		sampleState->Release();
-		sampleState = 0;
-	}
-
-	// Release the matrix constant buffer.
-	if (matrixBuffer)
-	{
-		matrixBuffer->Release();
-		matrixBuffer = 0;
-	}
-
-	// Release the layout.
-	if (layout)
-	{
-		layout->Release();
-		layout = 0;
-	}
-
-	//Release base shader components
-	BaseShader::~BaseShader();
-}
-
-
-void TextureShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
+void PositionShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -52,6 +21,17 @@ void TextureShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilen
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
+
+	//setup player pos buffer
+	D3D11_BUFFER_DESC playerBufferDesc;
+
+	playerBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	playerBufferDesc.ByteWidth = sizeof(PlayerPosBufferType);
+	playerBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	playerBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	playerBufferDesc.MiscFlags = 0;
+	playerBufferDesc.StructureByteStride = 0;
+	renderer->CreateBuffer(&playerBufferDesc, NULL, &playerPosBuffer);
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
@@ -69,22 +49,20 @@ void TextureShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilen
 
 	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
-
 }
 
 
-void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ExtraShaderParams& extraShaderParams)
+void PositionShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, ExtraShaderParams& extraShaderParams)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	XMMATRIX tworld, tview, tproj;
 
-
 	// Transpose the matrices to prepare them for the shader.
-	tworld = XMMatrixTranspose(worldMatrix);
-	tview = XMMatrixTranspose(viewMatrix);
-	tproj = XMMatrixTranspose(projectionMatrix);
+	tworld = XMMatrixTranspose(world);
+	tview = XMMatrixTranspose(view);
+	tproj = XMMatrixTranspose(projection);
 
 	// Send matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -95,12 +73,19 @@ void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
+	//map player pos buffer
+	result = deviceContext->Map(playerPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	PlayerPosBufferType* playerPosPtr = (PlayerPosBufferType*)mappedResource.pData;
+	playerPosPtr->playerPosition = extraShaderParams.playerPos;
+	playerPosPtr->screenDimensions = XMFLOAT2(1200.f, 600.f);
+	playerPosPtr->worldAtTopDown = extraShaderParams.worldAtTopDown;
+	playerPosPtr->viewAtTopDown = extraShaderParams.viewAtTopDown;
+	playerPosPtr->projectionAtTopDown = extraShaderParams.projectionAtTopDown;
+	deviceContext->Unmap(playerPosBuffer, 0);
+	deviceContext->VSSetConstantBuffers(0, 1, &playerPosBuffer);
+
+
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }
-
-
-
-
-
