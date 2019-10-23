@@ -2,10 +2,13 @@
 #ifndef _APP1_H
 #define _APP1_H
 
+#include <memory>
+
 // Includes
 #include "DXF.h"	// include dxframework
 #include "LightShader.h"
 #include "TextureShader.h"
+#include "PositionShader.h"
 
 class App1 : public BaseApplication
 {
@@ -36,6 +39,7 @@ private:
 
 	LightShader* lightShader;
 	TextureShader* textureShader;
+	std::unique_ptr<PositionShader> positionShader;
 
 	RenderTexture* renderTexture; //for the sphere
 	RenderTexture* renderTexture2; //for the plane

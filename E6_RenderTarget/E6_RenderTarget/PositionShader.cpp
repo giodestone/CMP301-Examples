@@ -2,7 +2,7 @@
 
 PositionShader::PositionShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"texture_vs.cso", L"texture_ps.cso");
+	initShader(L"texture_vs.cso", L"position_ps.cso");
 }
 
 void PositionShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
@@ -64,12 +64,13 @@ void PositionShader::setShaderParameters(ID3D11DeviceContext* deviceContext, con
 	tview = XMMatrixTranspose(view);
 	tproj = XMMatrixTranspose(projection);
 
+	auto identityt = XMMatrixTranspose(XMMatrixIdentity());
 	// Send matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = tworld;// worldMatrix;
-	dataPtr->view = tview;
-	dataPtr->projection = tproj;
+	dataPtr->world = identityt;// worldMatrix;
+	dataPtr->view = identityt;
+	dataPtr->projection = identityt;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
@@ -78,9 +79,9 @@ void PositionShader::setShaderParameters(ID3D11DeviceContext* deviceContext, con
 	PlayerPosBufferType* playerPosPtr = (PlayerPosBufferType*)mappedResource.pData;
 	playerPosPtr->playerPosition = extraShaderParams.playerPos;
 	playerPosPtr->screenDimensions = XMFLOAT2(1200.f, 600.f);
-	playerPosPtr->worldAtTopDown = extraShaderParams.worldAtTopDown;
-	playerPosPtr->viewAtTopDown = extraShaderParams.viewAtTopDown;
-	playerPosPtr->projectionAtTopDown = extraShaderParams.projectionAtTopDown;
+	playerPosPtr->worldAtTopDown = XMMatrixTranspose(world);
+	playerPosPtr->viewAtTopDown = XMMatrixTranspose(view);
+	playerPosPtr->projectionAtTopDown = XMMatrixTranspose(projection);
 	deviceContext->Unmap(playerPosBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &playerPosBuffer);
 

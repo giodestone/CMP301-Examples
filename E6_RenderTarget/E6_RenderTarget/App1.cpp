@@ -23,10 +23,13 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	///TODO: THE RENDER TEXTURE HAS TO BE MAX SIZE TO BE ABLE TO MATCH THE COORDINATES 1:1 WITH SCREEN SPACE, IT HAS TO BE SCALED DOWN LATER -- PROBABLY SHOULD NOT RENDER THE FULL SIZED ONE, JUST THE SMALL ONE WITH A DIFFERENT TEXTURE!
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, screenWidth / 2.7, screenHeight / 2.7); //TODO GET RID OF X,Y POS (DEFAULT TO 0) AND SET WIDTH HEIGHT TO SCREEN SIZE
+	//orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight); //TODO GET RID OF X,Y POS (DEFAULT TO 0) AND SET WIDTH HEIGHT TO SCREEN SIZE
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 4, screenHeight / 4, -screenWidth / 2.7, screenHeight / 2.7);
 
 	lightShader = new LightShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
+
+	positionShader = make_unique<PositionShader>(renderer->getDevice(), hwnd);
 
 	renderTexture = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 	renderTexture2 = new RenderTexture(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
@@ -71,7 +74,7 @@ bool App1::frame()
 bool App1::render()
 {
 	// Render first pass to render texture
-	//firstPass();
+	firstPass();
 
 	//render minimap
 	secondPass();
@@ -151,6 +154,12 @@ void App1::secondPass()
 	lightShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixMultiply(worldMatrix, scaleMatrix), posMatrix), viewMatrix, projectionMatrix, textureMgr->getTexture(L"default"), light);
 	lightShader->render(renderer->getDeviceContext(), posSphere->getIndexCount());
 	renderer->setZBuffer(true);
+
+	//renderer->getDeviceContext()->VSSetShader(NULL, NULL, NULL);
+	//render the dot at the camera pos
+	orthoMesh->sendData(renderer->getDeviceContext());
+	positionShader.get()->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, renderTexture2->getShaderResourceView(), extraShaderParams);
+	positionShader.get()->render(renderer->getDeviceContext(), 0);
 
 	// reset the camera pos
 	camera->setPosition(originalCameraPos.x, originalCameraPos.y, originalCameraPos.z);
