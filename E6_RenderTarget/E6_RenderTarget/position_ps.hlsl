@@ -4,8 +4,9 @@ Texture2D texture0 : register(t0);
 cbuffer PlayerPosBuffer : register(b0)
 {
 	float2 screenDimensions;
+	float2 padding;
 	float3 playerPosition;
-	float3 padding;
+	float padding2;
 
 	matrix worldMatrixAtTopDown;
 	matrix viewMatrixAtTopDown;
@@ -19,16 +20,26 @@ struct InputType
 	float3 normal : NORMAL;
 };
 
-// place a dot where the player is... probably not the best place and should've made this into another shader, maybe?
-float4 shadePlayerPos(in float4 position, in float2 playerPos, in float4 color, in float radius)
+// Make it grayscale by averaging the colour
+float4 averageColor(in float4 colorToAverage)
 {
-	float dx = position.x /*- (radius * 2.f)*/;
-	float dy = position.y /*- (radius * 2.f)*/;
+	float avg = (colorToAverage.x + colorToAverage.y + colorToAverage.z) / 3.f;
 
-	if ((dx * dx) + (dy * dy) <= radius)
-		return color;
+	return float4(avg, avg, avg, colorToAverage.w);
+}
 
-	return float4(0.f, 0.f, 0.f, 0.f);
+// place a dot where the player is... probably not the best place and should've made this into another shader, maybe?
+float4 shadePlayerPos(in float4 texel, in float4 playerPos, in float radius, in float4 shadeColor, in float4 noShadeColor)
+{
+	if (pow(texel.x - playerPos.x, 2.f) + pow(texel.y - playerPos.y , 2.f) < pow(radius, 2.f))
+	{
+		//inside circle
+		return shadeColor;
+	}
+	else
+	{
+		return noShadeColor;
+	}
 }
 
 float4 main(InputType input) : SV_TARGET
@@ -40,21 +51,20 @@ float4 main(InputType input) : SV_TARGET
 
 	//MAKE UNIT
 	playerPosFloat4.xyz /= playerPosFloat4.w;
-	playerPosFloat4.y = playerPosFloat4.z;
+	//playerPosFloat4.y = playerPosFloat4.z;
 	playerPosFloat4.xy *= float2(0.5f, -0.5f);
 	playerPosFloat4.xy += 0.5f;
 
 	//MAKE IT INTO SCREENSPACE
-	playerPosFloat4.x *= 1200.f;
-	playerPosFloat4.y *= 675.f;
+	playerPosFloat4.xy *= screenDimensions;
 	
-	bool x = fmod(input.position.x, playerPosFloat4.x) > 20.f;
-	bool y = fmod(input.position.y, playerPosFloat4.y) > 20.f;
+	/*bool x = fmod(input.position.x, playerPosFloat4.x) > 20.f;
+	bool y = fmod(input.position.y, playerPosFloat4.y) > 20.f;*/
 
 
 	//NOW DRAW A CIRCLE
 	float4 textureColor = texture0.Sample(Sampler0, input.tex);
-	return shadePlayerPos(input.position - (playerPosFloat4), float4(0.f, 0.f, 0.f, 0.f), float4(1.f, 0.f, 1.f, 1.f), 5.f) + textureColor;
+	return shadePlayerPos(input.position, playerPosFloat4, 20.f, float4(1.f, 0.f, 1.f, 0.f), averageColor(textureColor));
 
 	return float4(0.f,0.f,0.f,1.f);
 }

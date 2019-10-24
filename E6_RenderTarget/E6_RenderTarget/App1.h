@@ -22,8 +22,8 @@ public:
 
 protected:
 	bool render();
-	void firstPass();
-	void secondPass();
+	void spherePass();
+	void minimapTopDownGeometryPass();
 	void finalPass();
 	void gui();
 
@@ -35,20 +35,23 @@ private:
 
 	SphereMesh* posSphere;
 
-	OrthoMesh* orthoMesh;
-	OrthoMesh* orthoMesh2; //both ortho meshes are for the render textures
+	OrthoMesh* rightSmallOrthoMesh;
+	OrthoMesh* leftSmallOrthoMesh; //both ortho meshes are for the render textures
+	std::unique_ptr<OrthoMesh> fullScreenOrthoMesh;
 
 	LightShader* lightShader;
 	TextureShader* textureShader;
 	std::unique_ptr<PositionShader> positionShader;
 
 	RenderTexture* renderTexture; //for the sphere
-	RenderTexture* renderTexture2; //for the plane
+	RenderTexture* renderTexture2; //for the top down cube
 	RenderTexture* minimapCircleRenderTexture;
 
 	ExtraShaderParams extraShaderParams;
 
 	Light* light;
+	
+	std::unique_ptr<Camera> topDownCamera;
 };
 
 #endif

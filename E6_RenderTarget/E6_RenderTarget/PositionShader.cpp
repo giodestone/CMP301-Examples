@@ -52,7 +52,7 @@ void PositionShader::initShader(const wchar_t* vsFilename, const wchar_t* psFile
 }
 
 
-void PositionShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, ExtraShaderParams& extraShaderParams)
+void PositionShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, XMFLOAT3 playerPosition, XMMATRIX topDownView, XMMATRIX topDownProj)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -64,26 +64,25 @@ void PositionShader::setShaderParameters(ID3D11DeviceContext* deviceContext, con
 	tview = XMMatrixTranspose(view);
 	tproj = XMMatrixTranspose(projection);
 
-	auto identityt = XMMatrixTranspose(XMMatrixIdentity());
 	// Send matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = identityt;// worldMatrix;
-	dataPtr->view = identityt;
-	dataPtr->projection = identityt;
+	dataPtr->world = tworld;// worldMatrix;
+	dataPtr->view = tview;
+	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
 	//map player pos buffer
 	result = deviceContext->Map(playerPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	PlayerPosBufferType* playerPosPtr = (PlayerPosBufferType*)mappedResource.pData;
-	playerPosPtr->playerPosition = extraShaderParams.playerPos;
-	playerPosPtr->screenDimensions = XMFLOAT2(1200.f, 600.f);
-	playerPosPtr->worldAtTopDown = XMMatrixTranspose(world);
-	playerPosPtr->viewAtTopDown = XMMatrixTranspose(view);
-	playerPosPtr->projectionAtTopDown = XMMatrixTranspose(projection);
+	playerPosPtr->playerPosition = playerPosition;
+	playerPosPtr->screenDimensions = XMFLOAT2(1200.f, 675.f);
+	playerPosPtr->worldAtTopDown = tworld;
+	playerPosPtr->viewAtTopDown = XMMatrixTranspose(topDownView);
+	playerPosPtr->projectionAtTopDown = XMMatrixTranspose(topDownProj);
 	deviceContext->Unmap(playerPosBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &playerPosBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &playerPosBuffer);
 
 
 	// Set shader texture and sampler resource in the pixel shader.

@@ -73,7 +73,7 @@ void TextureShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilen
 }
 
 
-void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, ExtraShaderParams& extraShaderParams)
+void TextureShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
