@@ -45,7 +45,7 @@ ConstantOutputType PatchConstantFunction(InputPatch<InputType, 3> inputPatch, ui
 
 
 [domain("tri")]
-[partitioning("integer")]
+[partitioning("integer")] //TODO: TASK 3
 [outputtopology("triangle_ccw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("PatchConstantFunction")]
