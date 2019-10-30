@@ -2,9 +2,13 @@
 #ifndef _APP1_H
 #define _APP1_H
 
+#include <memory>
+
 // Includes
 #include "DXF.h"	// include dxframework
 #include "TessellationShader.h"
+#include "TesselationQuadShader.h"
+#include "QuadTessellationMesh.h"
 
 class App1 : public BaseApplication
 {
@@ -22,15 +26,25 @@ protected:
 
 private:
 	TessellationMesh* mesh;
+	std::unique_ptr<QuadTessellationMesh> quadMesh;
+
+	std::unique_ptr<TesselationQuadShader> quadTessShader;
 	TessellationShader* shader;
 
 	ExtraShaderParams esp;
 
-	int tessFactor = 1;
+	float tessFactor = 1.f;
 
-	int tessFactorEdgeTop = 1;
-	int tessFactorEdgeBL = 1;
-	int tessFactorEdgeBR = 1;
+	float tessFactorEdgeTop = 1.f;
+	float tessFactorEdgeBL = 1.f;
+	float tessFactorEdgeBR = 1.f;
+
+	float tessFactor2 = 1.f;
+	float tessFactorEdgeTLQuad = 1.f;
+	float tessFactorEdgeTRQuad = 1.f;
+	float tessFactorEdgeBLQuad = 1.f;
+	float tessFactorEdgeBRQuad = 1.f;
+
 
 };
 

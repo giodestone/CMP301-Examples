@@ -3,10 +3,10 @@
 
 cbuffer TesselationBuffer : register(b0)
 {
-	int tesselationFactorInside;
-	int tesselationFactorTopEdge;
-	int tesselationFactorBottomLeft;
-	int tesselationFactorBottomRight;
+	float tesselationFactorInside;
+	float tesselationFactorTopEdge;
+	float tesselationFactorBottomLeft;
+	float tesselationFactorBottomRight;
 }
 
 struct InputType

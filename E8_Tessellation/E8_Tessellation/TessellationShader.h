@@ -16,10 +16,10 @@ class TessellationShader : public BaseShader
 {
 	struct TesselationBufferType
 	{
-		int tesselationFactorInside;
-		int tesselationFactorTopEdge;
-		int tesselationFactorBottomLeft;
-		int tesselationFactorBottomRight;
+		float tesselationFactorInside;
+		float tesselationFactorTopEdge;
+		float tesselationFactorBottomLeft;
+		float tesselationFactorBottomRight;
 	};
 
 public:

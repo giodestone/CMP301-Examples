@@ -14,7 +14,10 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	// Create Mesh object and shader object
 	mesh = new TessellationMesh(renderer->getDevice(), renderer->getDeviceContext());
+	quadMesh = std::make_unique<QuadTessellationMesh>(renderer->getDevice(), renderer->getDeviceContext());
+
 	shader = new TessellationShader(renderer->getDevice(), hwnd);
+	quadTessShader = std::make_unique<TesselationQuadShader>(renderer->getDevice(), hwnd);
 }
 
 
@@ -63,16 +66,31 @@ bool App1::render()
 	viewMatrix = camera->getViewMatrix();
 	projectionMatrix = renderer->getProjectionMatrix();
 
-	// Send geometry data, set shader parameters, render object with shader
-	mesh->sendData(renderer->getDeviceContext());
 
+	/*configure extra shader params*/
 	esp.tessFactor = tessFactor;
 	esp.tessFactorTop = tessFactorEdgeTop;
 	esp.tessFactorBL = tessFactorEdgeBL;
 	esp.tessFactorBR = tessFactorEdgeBR;
 
+	esp.tessFactor2 = tessFactor2;
+	esp.tessFactorEdgeBLQuad = tessFactorEdgeBLQuad;
+	esp.tessFactorEdgeBRQuad = tessFactorEdgeBRQuad;
+	esp.tessFactorEdgeTLQuad = tessFactorEdgeTLQuad;
+	esp.tessFactorEdgeTRQuad = tessFactorEdgeTRQuad;
+
+	/*draw triangle*/
+	// Send geometry data, set shader parameters, render object with shader
+	mesh->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, esp);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	/*draw quad using quad shader*/
+	//renderer->getDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+	quadMesh->sendData(renderer->getDeviceContext());
+	quadTessShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixTranslation(4.f, 0.f, 0.f), worldMatrix), viewMatrix, projectionMatrix, esp);
+	quadTessShader->render(renderer->getDeviceContext(), quadMesh->getIndexCount());
+	//renderer->getDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
 	// Render GUI
 	gui();
@@ -95,11 +113,16 @@ void App1::gui()
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 
 	ImGui::Text("Tesselation Controls");
-	ImGui::SliderInt("Tesselation Factor Interior", &tessFactor, 1, 64);
-	ImGui::SliderInt("Tesselation Factor Top Edge", &tessFactorEdgeTop, 1, 64);
-	ImGui::SliderInt("Tesselation Factor Bottom Left Edge", &tessFactorEdgeBL, 1, 64);
-	ImGui::SliderInt("Tesselation Factor Bottom Right Edge", &tessFactorEdgeBR, 1, 64);
-	
+	ImGui::SliderFloat("Tesselation Factor Interior", &tessFactor, 1.f, 64.f);
+	ImGui::Text("Tri Controls");
+	ImGui::SliderFloat("Tesselation Factor Top Edge", &tessFactorEdgeTop, 1.f, 64.f);
+	ImGui::SliderFloat("Tesselation Factor Bottom Left Edge", &tessFactorEdgeBL, 1.f, 64.f);
+	ImGui::SliderFloat("Tesselation Factor Bottom Right Edge", &tessFactorEdgeBR, 1.f, 64.f);
+	ImGui::Text("Quad Controls");
+	ImGui::SliderFloat("Tesselation Factor Top Left", &tessFactorEdgeTLQuad, 1.f, 64.f);
+	ImGui::SliderFloat("Tesselation Factor Top Right", &tessFactorEdgeTRQuad, 1.f, 64.f);
+	ImGui::SliderFloat("Tesselation Factor Bottom Left", &tessFactorEdgeBLQuad, 1.f, 64.f);
+	ImGui::SliderFloat("Tesselation Factor Bottom Right", &tessFactorEdgeBRQuad, 1.f, 64.f);
 
 	// Render UI
 	ImGui::Render();
