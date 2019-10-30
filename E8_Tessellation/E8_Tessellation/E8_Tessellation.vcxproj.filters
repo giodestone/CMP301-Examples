@@ -32,6 +32,9 @@
     <ClInclude Include="TessellationShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExtraShaderParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\tessellation_ds.hlsl">

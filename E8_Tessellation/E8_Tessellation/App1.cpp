@@ -65,7 +65,13 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
+
+	esp.tessFactor = tessFactor;
+	esp.tessFactorTop = tessFactorEdgeTop;
+	esp.tessFactorBL = tessFactorEdgeBL;
+	esp.tessFactorBR = tessFactorEdgeBR;
+
+	shader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, esp);
 	shader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 
 	// Render GUI
@@ -87,6 +93,13 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
+
+	ImGui::Text("Tesselation Controls");
+	ImGui::SliderInt("Tesselation Factor Interior", &tessFactor, 1, 64);
+	ImGui::SliderInt("Tesselation Factor Top Edge", &tessFactorEdgeTop, 1, 64);
+	ImGui::SliderInt("Tesselation Factor Bottom Left Edge", &tessFactorEdgeBL, 1, 64);
+	ImGui::SliderInt("Tesselation Factor Bottom Right Edge", &tessFactorEdgeBR, 1, 64);
+	
 
 	// Render UI
 	ImGui::Render();

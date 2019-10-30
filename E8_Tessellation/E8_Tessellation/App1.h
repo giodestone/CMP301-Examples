@@ -23,6 +23,15 @@ protected:
 private:
 	TessellationMesh* mesh;
 	TessellationShader* shader;
+
+	ExtraShaderParams esp;
+
+	int tessFactor = 1;
+
+	int tessFactorEdgeTop = 1;
+	int tessFactorEdgeBL = 1;
+	int tessFactorEdgeBR = 1;
+
 };
 
 #endif

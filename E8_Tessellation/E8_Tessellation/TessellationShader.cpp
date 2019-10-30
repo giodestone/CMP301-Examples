@@ -49,7 +49,16 @@ void TessellationShader::initShader(const wchar_t* vsFilename, const wchar_t* ps
 
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 
-	
+	// Describe the tesselation buffer for the hull shader
+	D3D11_BUFFER_DESC tesselationBufferDesc;
+	tesselationBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	tesselationBufferDesc.ByteWidth = sizeof(TesselationBufferType);
+	tesselationBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	tesselationBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	tesselationBufferDesc.MiscFlags = 0;
+	tesselationBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&tesselationBufferDesc, NULL, &tesselationBuffer);
 }
 
 void TessellationShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* psFilename)
@@ -63,7 +72,7 @@ void TessellationShader::initShader(const wchar_t* vsFilename, const wchar_t* hs
 }
 
 
-void TessellationShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix)
+void TessellationShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ExtraShaderParams extraShaderParams)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -81,6 +90,18 @@ void TessellationShader::setShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
+
+	/*Send tesselation details to the hull shader*/
+	result = deviceContext->Map(tesselationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	TesselationBufferType* dataPtr2 = (TesselationBufferType*)mappedResource.pData;
+	
+	dataPtr2->tesselationFactorBottomLeft = extraShaderParams.tessFactorBL;
+	dataPtr2->tesselationFactorBottomRight = extraShaderParams.tessFactorBR;
+	dataPtr2->tesselationFactorTopEdge = extraShaderParams.tessFactorTop;
+	
+	dataPtr2->tesselationFactorInside = extraShaderParams.tessFactor;
+	deviceContext->Unmap(tesselationBuffer, 0);
+	deviceContext->HSSetConstantBuffers(0, 1, &tesselationBuffer);
 }
 
 
