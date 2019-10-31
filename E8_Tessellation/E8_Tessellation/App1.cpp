@@ -119,6 +119,7 @@ void App1::gui()
 	ImGui::SliderFloat("Tesselation Factor Bottom Left Edge", &tessFactorEdgeBL, 1.f, 64.f);
 	ImGui::SliderFloat("Tesselation Factor Bottom Right Edge", &tessFactorEdgeBR, 1.f, 64.f);
 	ImGui::Text("Quad Controls");
+	ImGui::SliderFloat("Tesselation Factor Interior 2", &tessFactor2, 1.f, 64.f);
 	ImGui::SliderFloat("Tesselation Factor Top Left", &tessFactorEdgeTLQuad, 1.f, 64.f);
 	ImGui::SliderFloat("Tesselation Factor Top Right", &tessFactorEdgeTRQuad, 1.f, 64.f);
 	ImGui::SliderFloat("Tesselation Factor Bottom Left", &tessFactorEdgeBLQuad, 1.f, 64.f);

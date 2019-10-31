@@ -52,7 +52,7 @@ ConstantOutputType PatchConstantFunction(InputPatch<InputType, 4> inputPatch, ui
 
 [domain("quad")]
 //[patchsize(4)]
-[partitioning("integer")]
+[partitioning("fractional_odd")]
 [outputtopology("triangle_ccw")]
 [outputcontrolpoints(4)]
 [patchconstantfunc("PatchConstantFunction")]
