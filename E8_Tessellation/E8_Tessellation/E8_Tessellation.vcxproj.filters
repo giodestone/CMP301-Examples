@@ -30,6 +30,9 @@
     <ClCompile Include="QuadTessellationMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DynamicTriTesselationShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QuadTessellationMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicTriTesselationShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,6 +71,12 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="tesselationQuad_ds.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="tessellationDynamicTri_ds.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="tessellationDynamicTri_hs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

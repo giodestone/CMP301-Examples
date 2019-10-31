@@ -19,6 +19,13 @@ class TesselationQuadShader :
 		XMFLOAT2 padding;
 	};
 
+	struct WaveBufferType
+	{
+		bool shouldWave;
+		float time;
+		XMFLOAT2 padding;
+	};
+
 public:
 	TesselationQuadShader(ID3D11Device* device, HWND hwnd);
 	~TesselationQuadShader();
@@ -32,5 +39,6 @@ private:
 private:
 	ID3D11Buffer* matrixBuffer;
 	ID3D11Buffer* tesselationBuffer;
+	ID3D11Buffer* waveBuffer;
 };
 

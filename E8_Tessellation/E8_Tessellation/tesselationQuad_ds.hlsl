@@ -8,6 +8,13 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 };
 
+cbuffer WaveBuffer : register (b1)
+{
+	bool shouldWave;
+	float time;
+	float2 padding;
+}
+
 struct ConstantOutputType
 {
 	float edges[4] : SV_TessFactor;
@@ -47,6 +54,13 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 
 	// Calculate the position of the new vertex against the world, view, and projection matrices.
 	output.position = mul(float4(vertexPosition, 1.0f), worldMatrix);
+
+	//add the wave
+	if (shouldWave)
+	{
+		output.position.y += sin(output.position.x + time) * 1.f;
+	}
+
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 

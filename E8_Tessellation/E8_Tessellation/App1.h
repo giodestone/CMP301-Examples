@@ -9,6 +9,7 @@
 #include "TessellationShader.h"
 #include "TesselationQuadShader.h"
 #include "QuadTessellationMesh.h"
+#include "DynamicTriTesselationShader.h"
 
 class App1 : public BaseApplication
 {
@@ -31,19 +32,23 @@ private:
 	std::unique_ptr<TesselationQuadShader> quadTessShader;
 	TessellationShader* shader;
 
+	std::unique_ptr<DynamicTriTesselationShader> dynamicTriTessShader;
+
+	std::unique_ptr<PlaneMesh> planeMesh;
+
 	ExtraShaderParams esp;
 
-	float tessFactor = 1.f;
+	float tessFactor = 4.f;
 
 	float tessFactorEdgeTop = 1.f;
 	float tessFactorEdgeBL = 1.f;
 	float tessFactorEdgeBR = 1.f;
 
-	float tessFactor2 = 1.f;
-	float tessFactorEdgeTLQuad = 1.f;
-	float tessFactorEdgeTRQuad = 1.f;
-	float tessFactorEdgeBLQuad = 1.f;
-	float tessFactorEdgeBRQuad = 1.f;
+	float tessFactor2 = 4.f;
+	float tessFactorEdgeTLQuad = 4.f;
+	float tessFactorEdgeTRQuad = 4.f;
+	float tessFactorEdgeBLQuad = 4.f;
+	float tessFactorEdgeBRQuad = 4.f;
 
 
 };

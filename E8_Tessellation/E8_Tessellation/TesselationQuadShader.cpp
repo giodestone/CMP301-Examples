@@ -55,6 +55,17 @@ void TesselationQuadShader::initShader(const wchar_t* vsFilename, const wchar_t*
 	tesselationBufferDesc.StructureByteStride = 0;
 
 	renderer->CreateBuffer(&tesselationBufferDesc, NULL, &tesselationBuffer);
+
+	// Describe the buffer for the sine wave
+	D3D11_BUFFER_DESC waveBufferDesc;
+	waveBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	waveBufferDesc.ByteWidth = sizeof(WaveBufferType);
+	waveBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	waveBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	waveBufferDesc.MiscFlags = 0;
+	waveBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&waveBufferDesc, NULL, &waveBuffer);
 }
 
 void TesselationQuadShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* psFilename)
@@ -87,6 +98,14 @@ void TesselationQuadShader::setShaderParameters(ID3D11DeviceContext* deviceConte
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
 
+	/*Send data for the vertex waving*/
+	result = deviceContext->Map(waveBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	WaveBufferType* dataPtrWave = (WaveBufferType*)mappedResource.pData;
+	dataPtrWave->shouldWave = extraShaderParams.shouldWave;
+	dataPtrWave->time = extraShaderParams.totalTime ;
+	deviceContext->Unmap(waveBuffer, 0);
+	deviceContext->DSSetConstantBuffers(1, 1, &waveBuffer);
+
 	/*Send tesselation details to the hull shader*/
 	result = deviceContext->Map(tesselationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	TesselationQuadType* dataPtr2 = (TesselationQuadType*)mappedResource.pData;
@@ -101,4 +120,6 @@ void TesselationQuadShader::setShaderParameters(ID3D11DeviceContext* deviceConte
 
 	deviceContext->Unmap(tesselationBuffer, 0);
 	deviceContext->HSSetConstantBuffers(0, 1, &tesselationBuffer);
+
+
 }

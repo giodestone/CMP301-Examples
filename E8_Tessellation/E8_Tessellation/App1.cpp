@@ -18,6 +18,10 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	shader = new TessellationShader(renderer->getDevice(), hwnd);
 	quadTessShader = std::make_unique<TesselationQuadShader>(renderer->getDevice(), hwnd);
+
+	dynamicTriTessShader = std::make_unique<DynamicTriTesselationShader>(renderer->getDevice(), hwnd);
+
+	planeMesh = std::make_unique<PlaneMesh>(renderer->getDevice(), renderer->getDeviceContext()); ///TODO: CREATE OWN PLANE MESH FOR TESSELLLATION I..E ADD deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST); TO SEND DATA OVERRIDE!!!
 }
 
 
@@ -79,6 +83,14 @@ bool App1::render()
 	esp.tessFactorEdgeTLQuad = tessFactorEdgeTLQuad;
 	esp.tessFactorEdgeTRQuad = tessFactorEdgeTRQuad;
 
+	esp.shouldWave = true;
+	esp.totalTime += timer->getTime();
+
+	esp.cameraPos = camera->getPosition();
+	esp.maxTessFactor = 64.f;
+	esp.maxDistance = 10.f;
+	esp.tessFactorModifier = 1.f;
+
 	/*draw triangle*/
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
@@ -91,6 +103,15 @@ bool App1::render()
 	quadTessShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixTranslation(4.f, 0.f, 0.f), worldMatrix), viewMatrix, projectionMatrix, esp);
 	quadTessShader->render(renderer->getDeviceContext(), quadMesh->getIndexCount());
 	//renderer->getDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+
+	/*Draw triangle for tessellation*/
+	mesh->sendData(renderer->getDeviceContext());
+	dynamicTriTessShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixTranslation(0.f, 2.f, 0.f), worldMatrix), viewMatrix, projectionMatrix, esp);
+	dynamicTriTessShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	planeMesh->sendData(renderer->getDeviceContext());
+	dynamicTriTessShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(XMMatrixTranslation(0.f, 0.f, 0.f), worldMatrix), viewMatrix, projectionMatrix, esp);
+	dynamicTriTessShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	// Render GUI
 	gui();
