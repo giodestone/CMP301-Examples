@@ -29,7 +29,7 @@ private:
 	PlaneMesh* mesh;
 
 	Light* light;
-	AModel* model;
+	Model* model;
 	ShadowShader* shadowShader;
 	DepthShader* depthShader;
 
