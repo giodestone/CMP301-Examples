@@ -2,6 +2,8 @@
 #ifndef _APP1_H
 #define _APP1_H
 
+#include <memory>
+
 // Includes
 #include "DXF.h"	// include dxframework
 #include "TextureShader.h"
@@ -28,12 +30,17 @@ private:
 	TextureShader* textureShader;
 	PlaneMesh* mesh;
 
+	std::unique_ptr<SphereMesh> sphereMesh;
+	std::unique_ptr<CubeMesh> cubeMesh;
+
 	Light* light;
 	Model* model;
 	ShadowShader* shadowShader;
 	DepthShader* depthShader;
 
 	ShadowMap* shadowMap;
+
+	float curRotation;
 };
 
 #endif
