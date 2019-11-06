@@ -22,6 +22,7 @@ public:
 
 protected:
 	bool render();
+	void renderTexturePass();
 	void depthPass();
 	void finalPass();
 	void gui();
@@ -32,6 +33,7 @@ private:
 
 	std::unique_ptr<SphereMesh> sphereMesh;
 	std::unique_ptr<CubeMesh> cubeMesh;
+	std::unique_ptr<OrthoMesh> orthoMesh;
 
 	Light* light;
 	Model* model;
@@ -39,6 +41,8 @@ private:
 	DepthShader* depthShader;
 
 	ShadowMap* shadowMap;
+
+	std::unique_ptr<RenderTexture> renderTexture;
 
 	float curRotation;
 };

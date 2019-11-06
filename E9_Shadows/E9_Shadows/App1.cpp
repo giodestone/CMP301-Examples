@@ -19,6 +19,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	sphereMesh = std::make_unique<SphereMesh>(renderer->getDevice(), renderer->getDeviceContext());
 	cubeMesh = std::make_unique<CubeMesh>(renderer->getDevice(), renderer->getDeviceContext());
+	orthoMesh = std::make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), screenWidth / 6.f, screenHeight / 6.f, (-screenWidth / 2.f) + (screenWidth / 6.f), (screenHeight / 6.f));
 
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
@@ -38,6 +39,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light->setDirection(0.0f, -0.2f, 0.7f);
 	light->setPosition(0.f, 0.f, -10.f);
 	light->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
+
+	renderTexture = std::make_unique<RenderTexture>(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
 	curRotation = 0.f;
 }
@@ -79,10 +82,55 @@ bool App1::render()
 
 	// Perform depth pass
 	depthPass();
+
+	//render depth to render texture
+	renderTexturePass();
+
 	// Render scene
 	finalPass();
 
 	return true;
+}
+
+void App1::renderTexturePass()
+{
+	renderTexture->setRenderTarget(renderer->getDeviceContext());
+	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 1.f, 1.f, 0.f, 0.f);
+
+	// get the world, view, and projection matrices from the camera and d3d objects.
+	light->generateViewMatrix();
+	XMMATRIX lightViewMatrix = light->getViewMatrix();
+	XMMATRIX lightProjectionMatrix = light->getOrthoMatrix();
+	XMMATRIX worldMatrix = renderer->getWorldMatrix();
+
+	worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
+	// Render floor
+	mesh->sendData(renderer->getDeviceContext());
+	depthShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	depthShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixTranslation(0.f, 7.f, 5.f);
+	XMMATRIX scaleMatrix = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	// Render model
+	model->sendData(renderer->getDeviceContext());
+	depthShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
+	depthShader->render(renderer->getDeviceContext(), model->getIndexCount());
+
+	// Render sphere
+	sphereMesh->sendData(renderer->getDeviceContext());
+	depthShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(renderer->getWorldMatrix(), XMMatrixMultiply(XMMatrixRotationRollPitchYaw(0.f, 0.f, curRotation), XMMatrixTranslation(-10.f, 3.f, 0.f))), lightViewMatrix, lightProjectionMatrix);
+	depthShader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
+
+	// Render cube
+	cubeMesh->sendData(renderer->getDeviceContext());
+	depthShader->setShaderParameters(renderer->getDeviceContext(), XMMatrixMultiply(renderer->getWorldMatrix(), XMMatrixMultiply(XMMatrixScaling(3.f, 3.f, 3.f), XMMatrixTranslation(15.f, 3.f, 0.f))), lightViewMatrix, lightProjectionMatrix);
+	depthShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
+
+	renderer->setBackBufferRenderTarget();
+
+
 }
 
 void App1::depthPass()
@@ -165,6 +213,15 @@ void App1::finalPass()
 		textureMgr->getTexture(L"brick"), shadowMap->getDepthMapSRV(), light);
 	shadowShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
+	//render the shadow map
+	renderer->setZBuffer(false);
+
+	orthoMesh->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), renderer->getWorldMatrix(), camera->getOrthoViewMatrix(), renderer->getOrthoMatrix(), renderTexture->getShaderResourceView());
+	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+
+	renderer->setZBuffer(true);
+	
 	gui();
 	renderer->endScene();
 }
