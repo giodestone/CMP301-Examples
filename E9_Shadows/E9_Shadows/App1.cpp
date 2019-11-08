@@ -40,6 +40,13 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	light->setPosition(0.f, 0.f, -10.f);
 	light->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
 
+	light2 = std::make_unique<Light>();
+	light2->setAmbientColour(0.3f, 0.3f, 0.3f, 1.0f);
+	light2->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	light2->setDirection(0.7f, -0.2f, 0.f);
+	light2->setPosition(0.f, 0.f, -10.f);
+	light2->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 100.f);
+
 	renderTexture = std::make_unique<RenderTexture>(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
 	curRotation = 0.f;
@@ -129,8 +136,6 @@ void App1::renderTexturePass()
 	depthShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
 	renderer->setBackBufferRenderTarget();
-
-
 }
 
 void App1::depthPass()
@@ -140,9 +145,13 @@ void App1::depthPass()
 
 	// get the world, view, and projection matrices from the camera and d3d objects.
 	light->generateViewMatrix();
+	light2->generateViewMatrix();
 	XMMATRIX lightViewMatrix = light->getViewMatrix();
 	XMMATRIX lightProjectionMatrix = light->getOrthoMatrix();
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
+
+	XMMATRIX light2ViewMatrix = light2->getViewMatrix();
+	XMMATRIX light2ProjectionMatrix = light2->getOrthoMatrix();
 
 	worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
 	// Render floor

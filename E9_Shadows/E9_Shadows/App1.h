@@ -36,6 +36,7 @@ private:
 	std::unique_ptr<OrthoMesh> orthoMesh;
 
 	Light* light;
+	std::unique_ptr<Light> light2;
 	Model* model;
 	ShadowShader* shadowShader;
 	DepthShader* depthShader;
