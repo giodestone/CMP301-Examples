@@ -10,10 +10,6 @@ using namespace DirectX;
 
 class DepthShader : public BaseShader
 {
-	struct LightMatrixType
-	{
-
-	};
 
 public:
 

@@ -23,6 +23,7 @@ public:
 protected:
 	bool render();
 	void renderTexturePass();
+	void depthShaderRender(Light* light);
 	void depthPass();
 	void finalPass();
 	void gui();
@@ -42,6 +43,7 @@ private:
 	DepthShader* depthShader;
 
 	ShadowMap* shadowMap;
+	std::unique_ptr<ShadowMap> shadowMap2;
 
 	std::unique_ptr<RenderTexture> renderTexture;
 
