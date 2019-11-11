@@ -9,6 +9,8 @@
 #include "VerticalBlurShader.h"
 #include "HorizontalBlurShader.h"
 
+#include <memory>
+
 class App1 : public BaseApplication
 {
 public:
@@ -24,6 +26,7 @@ protected:
 	void firstPass();
 	void verticalBlur();
 	void horizontalBlur();
+	void upscale();
 	void finalPass();
 	void gui();
 
@@ -36,6 +39,12 @@ private:
 	RenderTexture* renderTexture;
 	RenderTexture* horizontalBlurTexture;
 	RenderTexture* verticalBlurTexture;
+	
+	std::unique_ptr<OrthoMesh> smallOrthoMesh;
+	std::unique_ptr<RenderTexture> smallRenderTexture;
+	std::unique_ptr<RenderTexture> smallHorizontalBlurTexture;
+	std::unique_ptr<RenderTexture> smallVerticalBlurTexture;
+
 	VerticalBlurShader* verticalBlurShader;
 	HorizontalBlurShader* horizontalBlurShader;
 	
