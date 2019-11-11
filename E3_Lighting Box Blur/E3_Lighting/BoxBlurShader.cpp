@@ -51,7 +51,7 @@ void BoxBlurShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilen
 
 }
 
-void BoxBlurShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, Light* light, XMFLOAT2 screenDimensions)
+void BoxBlurShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, XMFLOAT2 screenDim)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -79,7 +79,7 @@ void BoxBlurShader::setShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->Map(pixelShaderBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	pixelShaderBufferPtr = (PixelShaderBufferType*)mappedResource.pData;
 
-	pixelShaderBufferPtr->screenDimensions = screenDimensions;
+	pixelShaderBufferPtr->screenDimensions = screenDim;
 
 	deviceContext->Unmap(pixelShaderBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &pixelShaderBuffer);

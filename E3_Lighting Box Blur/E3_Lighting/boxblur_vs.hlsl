@@ -16,7 +16,7 @@ struct OutputType
 	float2 tex: TEXCOORD0; 
 };
 
-float4 main( float4 pos : POSITION ) : SV_POSITION
+OutputType main( InputType input )
 {
 	OutputType output;
     output.position = mul(input.position, worldMatrix); 

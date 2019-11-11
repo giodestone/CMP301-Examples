@@ -25,7 +25,7 @@ class BoxBlurShader :
 public:
 	BoxBlurShader(ID3D11Device* device, HWND hwnd);
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, Light* light, XMFLOAT2 screenDimensions);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, XMFLOAT2 screenDim);
 private:
 	void initShader(const wchar_t* cs, const wchar_t* ps);
 

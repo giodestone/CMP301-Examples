@@ -33,6 +33,11 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	//initialise the floats for imgui
 	lightingDetails.UpdatePointersFromMatrices();
+
+	boxBlurShader = std::make_unique<BoxBlurShader>(renderer->getDevice(), hwnd);
+
+	renderTexture = std::make_unique<RenderTexture>(renderer->getDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	orthoMesh = std::make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), screenWidth, screenHeight);
 }
 
 
@@ -91,14 +96,45 @@ bool App1::frame()
 
 bool App1::render()
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
 	// Clear the scene. (default blue colour)
 	renderer->beginScene(0.39f, 0.58f, 0.92f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
 	camera->update();
+	
+	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.f, 0.f, 1.f, 1.f);
+	renderTexture->setRenderTarget(renderer->getDeviceContext());
 
+	renderMeshes();
+
+	renderer->setBackBufferRenderTarget();
+
+	XMFLOAT2 screenDimensions;
+	screenDimensions.x = 1200.f;
+	screenDimensions.y = 675.f;
+
+	orthoMesh->sendData(renderer->getDeviceContext());
+	boxBlurShader->setShaderParameters(renderer->getDeviceContext(), 
+		renderer->getWorldMatrix(), camera->getOrthoViewMatrix(), renderTexture->getOrthoMatrix(), 
+		renderTexture->getShaderResourceView(), screenDimensions);
+	boxBlurShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+	
+	renderer->setBackBufferRenderTarget();
+
+	// Render GUI
+	gui();
+
+	// Swap the buffers
+	renderer->endScene();
+
+	return true;
+}
+
+void App1::renderMeshes()
+{
+
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	worldMatrix = renderer->getWorldMatrix();
 	viewMatrix = camera->getViewMatrix();
@@ -120,13 +156,6 @@ bool App1::render()
 	lightDebugSphere->sendData(renderer->getDeviceContext());
 	shader->setShaderParameters(renderer->getDeviceContext(), lightPosMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"), light, lightingDetails);
 	shader->render(renderer->getDeviceContext(), lightDebugSphere->getIndexCount());
-	// Render GUI
-	gui();
-
-	// Swap the buffers
-	renderer->endScene();
-
-	return true;
 }
 
 void App1::gui()
