@@ -36,8 +36,9 @@ float4 main(InputType input) : SV_TARGET
     float shadowMapBias = 0.005f; //0.000 bad shadow acne, 0.100 peter paning
     float4 colour = float4(0.f, 0.f, 0.f, 1.f);
 	float4 textureColour = shaderTexture.Sample(diffuseSampler, input.tex);
-
-    for (int i = 0; i < 1; i++)
+	bool lit;
+    
+	for (int i = 0; i < NO_OF_LIGHTS; i++)
     {
 		// Calculate the projected texture coordinates.
 		float2 pTexCoord = input.lightViewPos[i].xy / input.lightViewPos[i].w;
@@ -47,11 +48,12 @@ float4 main(InputType input) : SV_TARGET
 		// Determine if the projected coordinates are in the 0 to 1 range.  If not don't do lighting.
 		if (pTexCoord.x < 0.f || pTexCoord.x > 1.f || pTexCoord.y < 0.f || pTexCoord.y > 1.f)
 		{
-            //continue;
+			lit = false;
 			//return textureColour;
         }
         else
         {
+			lit = true;
 			// Sample the shadow map (get depth of geometry)
 			depthValue = depthMapTexture[i].Sample(shadowSampler, pTexCoord).r;
 			// Calculate the depth from the light.
@@ -66,6 +68,14 @@ float4 main(InputType input) : SV_TARGET
         }
     }
     
-    colour = saturate(colour + ambient);
-    return saturate(colour) * textureColour;
+	if (lit)
+	{
+		colour = saturate(colour + ambient);
+		return saturate(colour) * textureColour;
+	}
+	else
+	{
+		return textureColour;
+	}
+
 }

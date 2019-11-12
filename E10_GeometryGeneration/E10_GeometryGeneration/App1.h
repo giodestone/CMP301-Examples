@@ -5,6 +5,7 @@
 // Includes
 #include "DXF.h"	// include dxframework
 #include "GeometryShader.h"
+#include "MyMeshClass.h"
 
 class App1 : public BaseApplication
 {
@@ -22,7 +23,7 @@ protected:
 
 private:
 	GeometryShader* geometryShader;
-	PointMesh* mesh;
+	MyMeshClass* mesh;
 };
 
 #endif

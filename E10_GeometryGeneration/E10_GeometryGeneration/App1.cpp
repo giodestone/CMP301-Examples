@@ -13,7 +13,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
 	// Create Mesh object and shader object
-	mesh = new PointMesh(renderer->getDevice(), renderer->getDeviceContext());
+	mesh = new MyMeshClass(renderer->getDevice(), renderer->getDeviceContext());
 	geometryShader = new GeometryShader(renderer->getDevice(), hwnd);
 }
 
@@ -64,7 +64,6 @@ bool App1::render()
 	mesh->sendData(renderer->getDeviceContext());
 	geometryShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
 	geometryShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
-
 	// Render GUI
 	gui();
 

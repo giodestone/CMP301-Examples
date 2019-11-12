@@ -166,10 +166,12 @@
     <ClCompile Include="App1.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MyMeshClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
     <ClInclude Include="GeometryShader.h" />
+    <ClInclude Include="MyMeshClass.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DXFramework\DXFramework.vcxproj">
