@@ -15,6 +15,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Create Mesh object and shader object
 	mesh = new MyMeshClass(renderer->getDevice(), renderer->getDeviceContext());
 	geometryShader = new GeometryShader(renderer->getDevice(), hwnd);
+
+	textureMgr->loadTexture(L"bunny", L"res/bunny.png");
 }
 
 
@@ -62,7 +64,7 @@ bool App1::render()
 
 	// Send geometry data, set shader parameters, render object with shader
 	mesh->sendData(renderer->getDeviceContext());
-	geometryShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
+	geometryShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"bunny"), XMFLOAT4(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z, 1.f));
 	geometryShader->render(renderer->getDeviceContext(), mesh->getIndexCount());
 	// Render GUI
 	gui();
