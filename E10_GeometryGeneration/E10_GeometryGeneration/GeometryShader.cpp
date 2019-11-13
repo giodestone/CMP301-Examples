@@ -113,8 +113,8 @@ void GeometryShader::setShaderParameters(ID3D11DeviceContext* deviceContext, con
 	CameraPosBufferType* dataPtr2 = (CameraPosBufferType*)mappedResource.pData;
 	dataPtr2->cameraPos = cameraPos;
 	deviceContext->Unmap(cameraPosBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &cameraPosBuffer);
+	deviceContext->GSSetConstantBuffers(1, 1, &cameraPosBuffer);
 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
-	deviceContext->PSGetSamplers(0, 1, &sampleState);
+	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }
