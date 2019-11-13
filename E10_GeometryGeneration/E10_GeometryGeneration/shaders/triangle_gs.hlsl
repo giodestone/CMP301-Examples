@@ -47,38 +47,48 @@ struct OutputType
 	float4 worldPosition : POSITION1;
 };
 
-//https://gist.github.com/neilmendoza/4512992
-matrix rotationMatrix(float3 axis, float angle)
-{
-	axis = normalize(axis);
-	float s = sin(angle);
-	float c = cos(angle);
-	float oc = 1.0 - c;
+////https://gist.github.com/neilmendoza/4512992
+//matrix rotationMatrix(float3 axis, float angle)
+//{
+//	axis = normalize(axis);
+//	float s = sin(angle);
+//	float c = cos(angle);
+//	float oc = 1.0 - c;
 
-	matrix returnMatrix = { oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
-		oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
-		oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
-		0.0, 0.0, 0.0, 1.0 };
+//	matrix returnMatrix = { oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
+//		oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
+//		oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
+//		0.0, 0.0, 0.0, 1.0 };
 
-	return returnMatrix;
-}
+//	return returnMatrix;
+//}
 
 [maxvertexcount(6)]
 void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
 {
 	OutputType output;
 	
-	//generate a new world matrix that looks at x 
-	float4 pos = input[0].cameraWorldPos - input[0].position;
-	float angleYaw = atan(pos.z / pos.x);
+	////generate a new world matrix that looks at x 
+	//float4 pos = input[0].cameraWorldPos - input[0].position;
+	//float angleYaw = atan(pos.z / pos.x);
 
-	float anglePitch = atan(pos.y / pos.z);
+	//float anglePitch = atan(pos.y / pos.z);
 
-	matrix rotationMatrixYaw = (float3(0.f, 1.f, 0.f), angleYaw);
-	matrix newWorldMatrix = mul(worldMatrix, rotationMatrixYaw);
+	//matrix rotationMatrixYaw = (float3(0.f, 1.f, 0.f), angleYaw);
+	//matrix newWorldMatrix = mul(worldMatrix, rotationMatrixYaw);
+
+	//make sprite look at camera
+    float4 posToCamVec = input[0].cameraWorldPos - input[0].position;
+
+    float upVec = float3(0.f, 1.f, 0.f);
+
+    float4 rightVector = float4(cross(normalize(posToCamVec.xyz), upVec), 1.f);
+    rightVector = normalize(rightVector);
+
+    rightVector = normalize(posToCamVec);
 
 	// Move the vertex away from the point position
-    output.position = input[0].position + QuadVertices[0];
+    output.position = input[0].position + QuadVertices[0] + rightVector;
     output.position = mul(output.position, worldMatrix);
 	output.worldPosition = output.position; //world pos
     output.position = mul(output.position, viewMatrix);
@@ -89,7 +99,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     triStream.Append(output);
 
 	// Move the vertex away from the point position
-    output.position = input[0].position + QuadVertices[1];
+    output.position = input[0].position + QuadVertices[1] + rightVector;
     output.position = mul(output.position, worldMatrix);
 	output.worldPosition = output.position; //world pos
     output.position = mul(output.position, viewMatrix);
@@ -100,7 +110,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     triStream.Append(output);
 
 	// Move the vertex away from the point position
-    output.position = input[0].position + QuadVertices[2];
+    output.position = input[0].position + QuadVertices[2] + rightVector;
     output.position = mul(output.position, worldMatrix);
 	output.worldPosition = output.position; //world pos
     output.position = mul(output.position, viewMatrix);
@@ -112,7 +122,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
 
 	
 	//tri 2
-	output.position = input[0].position + QuadVertices[2];
+    output.position = input[0].position + QuadVertices[2] + rightVector;
 	output.position = mul(output.position, worldMatrix);
 	output.worldPosition = output.position; //world pos
 	output.position = mul(output.position, viewMatrix);
@@ -122,7 +132,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
 	output.normal = normalize(output.normal);
 	triStream.Append(output);
 
-	output.position = input[0].position + QuadVertices[0];
+    output.position = input[0].position + QuadVertices[0] + rightVector;
 	output.position = mul(output.position, worldMatrix);
 	output.worldPosition = output.position; //world pos
 	output.position = mul(output.position, viewMatrix);
@@ -132,7 +142,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
 	output.normal = normalize(output.normal);
 	triStream.Append(output);
 
-	output.position = input[0].position + QuadVertices[3];
+    output.position = input[0].position + QuadVertices[3] + rightVector;
 	output.position = mul(output.position, worldMatrix);
 	output.worldPosition = output.position; //world pos
 	output.position = mul(output.position, viewMatrix);
