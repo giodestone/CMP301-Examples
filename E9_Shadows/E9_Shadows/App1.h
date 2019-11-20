@@ -9,6 +9,8 @@
 #include "TextureShader.h"
 #include "ShadowShader.h"
 #include "DepthShader.h"
+#include "PointShadowShader.h"
+#include "PointDepthShader.h"
 
 class App1 : public BaseApplication
 {
@@ -28,6 +30,10 @@ protected:
 	void finalPass();
 	void gui();
 
+	void renderTexturePassPoint();
+	void depthShaderRenderPoint();
+	void depthPassPoint();
+	void finalPassPoint();
 private:
 	TextureShader* textureShader;
 	PlaneMesh* mesh;
@@ -45,9 +51,16 @@ private:
 	ShadowMap* shadowMap;
 	std::unique_ptr<ShadowMap> shadowMap2;
 
+	std::unique_ptr<Light> pointLight;
+	std::unique_ptr<PointShadowShader> pointShadowShader;
+	std::unique_ptr<PointDepthShader> pointDepthShader;
+	std::unique_ptr<ShadowMap> pointLightShadowMap;
+	std::unique_ptr<RenderTexture> pointLightRenderTexture;
+
 	std::unique_ptr<RenderTexture> renderTexture;
 
 	float curRotation;
+	bool isPointLight = true;
 };
 
 #endif

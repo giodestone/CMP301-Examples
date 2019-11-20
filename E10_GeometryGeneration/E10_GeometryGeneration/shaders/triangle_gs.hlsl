@@ -118,6 +118,8 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
 
     //rightVector = float4(normalize(posToCamVec), 1.f);
 
+	//rightVector = posToCamVec;
+
 	float posW = input[0].position.w;
 
 	// Move the vertex away from the point position
