@@ -19,7 +19,7 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-x64/
+#x64/
 x86/
 bld/
 [Bb]in/
@@ -30,6 +30,11 @@ bld/
 #!*/lib/*
 !*/lib/[Rr]elease
 !*/lib/[Dd]ebug
+!*/x64/[Rr]elease
+!*/x64/[Dd]ebug/
+*.exe
+*.cso
+#!*.dll
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
